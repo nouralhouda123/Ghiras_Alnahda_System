@@ -19,7 +19,6 @@ class userRepository
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'phone' => $data['phone'],
-            'national_id' => $data['national_id'],
             'email_verified_at' => now(),
         ]);
     }

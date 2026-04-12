@@ -4,10 +4,12 @@ namespace App\Services;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UserRequest;
+use App\Mail\EmailVerificationMail;
 use App\Repositories\EmailVerficationRepository;
 use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class UserService
 {
@@ -31,7 +33,7 @@ class UserService
         $code = $this->generateVerificationCode();
         $this->emailRepository->deleteByEmail($request->email);
         $verification = $this->emailRepository->create($request->email, $code);
-        // Mail::to($request->email)->send(new SendEmailVerification($code));
+        Mail::to($user->email)->send(new EmailVerificationMail($code));
         return [
             'user' => $user,
             'verification' => $verification,

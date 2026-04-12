@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('email')->nullable()->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            //اضافة قيم ثابتة لحقل حالة
+            $table->string('status')->default('active');
             $table->string('phone')->nullable()->unique();
-            $table->string('national_id')->nullable()->unique();
             $table->rememberToken();
             $table->timestamps();
         });
