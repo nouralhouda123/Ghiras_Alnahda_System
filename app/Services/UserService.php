@@ -1,17 +1,13 @@
 <?php
 
 namespace App\Services;
-use App\Http\Requests\EmailVerificationRequest;
-use App\Http\Requests\LoginRequest;
-use App\Http\Requests\UserRequest;
-use App\Repositories\EmailVerficationRepository;
-use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\VolunteerProfile;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
+use Illuminate\Support\Facades\Mail;
 
 class UserService
 {
@@ -35,7 +31,7 @@ class UserService
         $code = $this->generateVerificationCode();
         $this->emailRepository->deleteByEmail($request->email);
         $verification = $this->emailRepository->create($request->email, $code);
-        // Mail::to($request->email)->send(new SendEmailVerification($code));
+        Mail::to($user->email)->send(new EmailVerificationMail($code));
         return [
             'user' => $user,
             'verification' => $verification,
@@ -45,44 +41,7 @@ class UserService
     }
 
 
-//
-//    public function register(UserRequest $request): array
-//    {
-//        // 1. إنشاء المستخدم
-//        $user = $this->userRepository->create($request->validated());
-//
-//        // 2. إنشاء المتطوع + token
-//        $volunteer = VolunteerProfile::create([
-//            'user_id' => $user->id,
-//            'qr_token' => 'VOL-' . Str::random(10),
-//        ]);
-//
-//        // 3. توليد QR Code
-//        $qr = QrCode::format('png')
-//            ->size(300)
-//            ->generate($volunteer->qr_token);
-//
-//        // 4. حفظ الصورة
-//        $path = 'qrcodes/' . $volunteer->qr_token . '.png';
-//        Storage::put('public/' . $path, $qr);
-//
-//        // 5. حفظ مسار الصورة
-//        $volunteer->update([
-//            'qr_code' => $path
-//        ]);
-//
-//        // 6. كود التحقق (كما عندك)
-//        $code = $this->generateVerificationCode();
-//        $this->emailRepository->deleteByEmail($request->email);
-//        $verification = $this->emailRepository->create($request->email, $code);
-//
-//        return [
-//            'user' => $user,
-//            'verification' => $verification,
-//            'message' => 'Registration success. Please check your email to verify your account',
-//            'code' => 201
-//        ];
-//    }
+
     public function Verify(EmailVerificationRequest $request){
         $emailverfication = $this->emailRepository->exists($request);
         if (!$emailverfication) {
