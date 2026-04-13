@@ -63,4 +63,25 @@ class AuthController extends Controller
         }
 
 
-    }}
+    }
+///////
+    public function profile()
+    {
+        $user = auth()->user();
+
+        return ResponseHelper::Success($user, 'my profile data', 200);
+    }
+
+    public function card()
+    {
+        $user = auth()->user();
+
+        return ResponseHelper::Success([
+            'fullName' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'qr_code' => asset('storage/' . $user->volunteerProfile->qr_code),
+        ], 'User profile data', 200);
+    }
+}
+
