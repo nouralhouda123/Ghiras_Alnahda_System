@@ -1,12 +1,14 @@
 <?php
 
 namespace App\Services;
+use App\Http\Requests\EmailVerificationRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UserRequest;
+use App\Mail\EmailVerificationMail;
+use App\Repositories\EmailVerficationRepository;
+use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use App\Models\VolunteerProfile;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-
 use Illuminate\Support\Facades\Mail;
 
 class UserService
@@ -40,8 +42,6 @@ class UserService
         ];
     }
 
-
-
     public function Verify(EmailVerificationRequest $request){
         $emailverfication = $this->emailRepository->exists($request);
         if (!$emailverfication) {
@@ -50,7 +50,7 @@ class UserService
         $user = $this->userRepository->getByEmail($request->email);
         $user->email_verified_at = Carbon::now();
         $user->save();
-       $emailverfication->delete();
+        $emailverfication->delete();
         return [
             'user' => $emailverfication,
             'message' => 'تم تاكيد حسابك بنجاح يمكنك الان تسجيل الدخول',

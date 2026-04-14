@@ -42,4 +42,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(VolunteerProfile::class);
     }
+// في موديل User.php
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
 }

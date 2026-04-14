@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VolunteerRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,7 +22,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
     Route::get('profile', [AuthController::class, 'profile']);
-
+    Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
+    Route::get('profile', [AuthController::class, 'profile']);
+    Route::post('profileupdate', [AuthController::class, 'updateProfile']);
     Route::get('card', [AuthController::class, 'cadr']);
 
 

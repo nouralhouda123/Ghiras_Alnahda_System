@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('volunteer_profiles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
 
-            $table->string('qr_code')->nullable(); // مسار الصورة
-            $table->string('qr_token')->unique(); // بصمة فريدة
+            // بيانات منقولة من الطلب (لتبقى كمرجع في بروفايله)
+            $table->integer('age');
+            $table->enum('gender', ['male', 'female']);
+            $table->string('current_address');
+            $table->string('cv_path');
 
-            $table->integer('total_hours')->default(0);
-            $table->integer('points')->default(0);
-
-            $table->boolean('is_team_leader')->default(false);
+            // إحصائيات التطوع
+            $table->integer('totalHours')->default(0);
+            $table->integer('pointsBalance')->default(0);
+            $table->boolean('isTeamLeader')->default(false);
             $table->timestamps();
         });
     }
