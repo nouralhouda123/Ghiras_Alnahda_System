@@ -2,8 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\ResponseHelper;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 class Handler extends ExceptionHandler
 {
@@ -23,8 +24,8 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        $this->renderable(function (AccessDeniedException $e,$request) {
+            ResponseHelper::Error('','You do not have the required authoriztion',403);
         });
     }
 }

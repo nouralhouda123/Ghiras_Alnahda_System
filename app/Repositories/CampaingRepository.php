@@ -1,0 +1,51 @@
+<?php
+
+
+namespace App\Repositories;
+
+
+use App\Models\Campaign;
+use App\Models\Campaign_kpi;
+
+class CampaingRepository
+{
+
+    public function createCampaing( array  $data)
+    {
+        return Campaign::create([
+            'title' => $data['title'],
+            'latitude' =>$data['latitude'],
+            'radius' => $data['radius'],
+            'required_volunteers' => $data['required_volunteers'],
+            'target_amount' => $data['target_amount'],
+            'has_evaluation' => $data['has_evaluation'],
+            'image' => $data['image']??null,
+            'video' =>$data['video']??null,
+            'description' => $data['description'],
+            'type' => $data['type'],
+            'priority' => $data['priority'],
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
+            'longitude' => $data['longitude'],
+        ]);
+    }
+    public function createCampaing_Kpi( array $data)
+    {
+        return Campaign_kpi::create($data);
+
+    }
+
+    public function index()
+    {
+        return Campaign::all();
+    }
+
+    public function indexWithRelation($id)
+    {
+        return Campaign::with('Campaign_kpis')->find($id);
+    }
+
+    public function indexDetail( $id)
+    {
+        return Campaign::with('Campaign_kpis')->find($id);
+    }}
