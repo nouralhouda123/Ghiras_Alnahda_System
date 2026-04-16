@@ -9,4 +9,7 @@ class Department extends Model
 {
     use HasFactory;
     protected $guarded=[];
+    public function manager() {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VolunteerRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('profile', [AuthController::class, 'profile']);
     Route::post('profileupdate', [AuthController::class, 'updateProfile']);
     Route::get('card', [AuthController::class, 'cadr']);
+    Route::post('storeDepartment', [DepartmentController::class, 'store']);
 
 
 

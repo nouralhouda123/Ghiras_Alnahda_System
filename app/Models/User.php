@@ -47,4 +47,7 @@ class User extends Authenticatable
     {
         return $this->image ? asset('storage/' . $this->image) : null;
     }
+    public function managedDepartment() {
+        return $this->hasOne(Department::class, 'manager_id');
+    }
 }
