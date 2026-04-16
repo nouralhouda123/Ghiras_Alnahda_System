@@ -14,18 +14,19 @@ return new class extends Migration
         Schema::create('join_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-
-            // الحقول الإضافية المطلوبة في الطلب
             $table->integer('age');
             $table->enum('gender', ['male', 'female']);
             $table->string('current_address');
-            $table->string('cv_path'); // سنخزن مسار الملف المرفوع
+            $table->string('cv_path');
 
-            // حالة الطلب (قيد الانتظار، مقبول، مرفوض)
+            // أضيفي هذه الحقول هنا لتتطابق مع الـ Controller
+            $table->enum('preferred_sector', ['relief', 'educational', 'medical', 'administrative']);
+            $table->enum('preferred_field', ['food_distribution', 'psychological_support', 'teaching', 'data_entry', 'media_marketing', 'logistics', 'first_aid']);
+            $table->integer('weekly_hours_capacity');
+            $table->string('message_title')->nullable();
+            $table->text('message_content')->nullable();
+
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-
-            // campaign_id نتركه nullable لأن الطلب عام
-          //  $table->foreignId('campaign_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

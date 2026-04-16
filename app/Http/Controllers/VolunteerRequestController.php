@@ -4,69 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\JoinRequest;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class VolunteerRequestController extends Controller
 {
-//    public function store(Request $request)
-//    {
-//        // 1. التحقق من البيانات (Validation)
-//        $validator = Validator::make($request->all(), [
-//            'age' => 'required|integer|min:15',
-//            'gender' => 'required|in:male,female',
-//            'current_address' => 'required|string|max:255',
-//            'cv' => 'required|file|mimes:pdf|max:2048', // الـ CV ملف PDF
-//        ]);
-//
-//        if ($validator->fails()) {
-//            return response()->json(['errors' => $validator->errors()], 422);
-//        }
-//
-//        // 2. رفع ملف الـ CV وتخزين مساره
-//        $path = $request->file('cv')->store('volunteer_cvs', 'public');
-//
-//        // 3. إنشاء الطلب بربطه مع المستخدم المسجل (عن طريق الـ Token)
-//        $joinRequest = JoinRequest::create([
-//            'user_id' => auth()->id(),
-//            'age' => $request->age,
-//            'gender' => $request->gender,
-//            'current_address' => $request->current_address,
-//            'cv_path' => $path,
-//            'status' => 'pending',
-//        ]);
-//
-//        return response()->json([
-//            'message' => 'Volunteer request submitted successfully!',
-//            'data' => $joinRequest
-//        ], 201);
-//    }
     public function store(Request $request)
     {
-        // سيقوم لارافل بالتحقق وإرجاع الأخطاء تلقائياً كـ JSON إذا فشل الـ Validation
+        // 1. التحقق من البيانات (Validation)
         $validatedData = $request->validate([
             'age' => 'required|integer|min:15',
             'gender' => 'required|in:male,female',
             'current_address' => 'required|string|max:255',
             'cv' => 'required|file|mimes:pdf|max:2048',
+
+            // الحقول الجديدة بناءً على تعديلات الـ enum
+            'preferred_sector' => 'required|in:relief,educational,medical,administrative',
+            'preferred_field' => 'required|in:food_distribution,psychological_support,teaching,data_entry,media_marketing,logistics,first_aid',
+            'weekly_hours_capacity' => 'required|integer|min:1|max:168',
+            'message_title' => 'nullable|string|max:255',
+            'message_content' => 'nullable|string',
         ]);
 
-        // رفع الملف
+        // 2. رفع ملف الـ CV
         $path = $request->file('cv')->store('volunteer_cvs', 'public');
 
-        // إنشاء الطلب
+        // 3. إنشاء الطلب
         $joinRequest = JoinRequest::create([
             'user_id' => auth()->id(),
             'age' => $validatedData['age'],
             'gender' => $validatedData['gender'],
             'current_address' => $validatedData['current_address'],
             'cv_path' => $path,
+            'preferred_sector' => $validatedData['preferred_sector'],
+            'preferred_field' => $validatedData['preferred_field'],
+            'weekly_hours_capacity' => $validatedData['weekly_hours_capacity'],
+            'message_title' => $validatedData['message_title'] ?? null,
+            'message_content' => $validatedData['message_content'] ?? null,
             'status' => 'pending',
         ]);
 
         return response()->json([
             'message' => 'Volunteer request submitted successfully!',
             'data' => array_merge($joinRequest->toArray(), [
-                'cv_path' => asset('storage/' . $joinRequest->cv_path)
+                'cv_url' => asset('storage/' . $path)
             ])
         ], 201);
     }
