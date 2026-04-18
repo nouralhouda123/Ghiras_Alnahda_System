@@ -18,5 +18,14 @@ class DepartmentController extends Controller
         return ResponseHelper::Success($department, 'the department created successfully', 201);
     }
     //عرض الاقسام
+    public function index()
+    {
+        $departments = Department::all();
 
+        return ResponseHelper::Success(
+            $departments,
+            'Departments retrieved successfully',
+            200
+        );
+    }
 }

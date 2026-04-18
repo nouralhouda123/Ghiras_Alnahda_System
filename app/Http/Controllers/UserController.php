@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
+
 class UserController extends Controller
 {
     protected $userService;
@@ -71,202 +73,6 @@ class UserController extends Controller
             'qr_code' => asset('storage/' . $user->volunteerProfile->qr_code),
         ], 'User profile data', 200);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- //////////////////////////قسم User
 //اضافة User
 public function addUser(addUserRequest $request ){
 $data=$this->userService->createUser($request);
@@ -275,6 +81,12 @@ $data=$this->userService->createUser($request);
             } else {
                 return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
             }}
+    public function getRoleNames()
+    {
+        $roles = Role::pluck('name');
+        return ResponseHelper::Success($roles, 'Roles fetched successfully', 200);
+    }
+
 
 
 

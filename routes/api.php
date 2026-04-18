@@ -26,11 +26,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('create_Campanig', [CampaignController::class, 'create']);
     Route::get('show_Campanig', [CampaignController::class, 'show']);
         Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
-        Route::post('addUser', [UserController::class, 'addUser']);
     Route::get('profile', [UserController::class, 'profile']);
     Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
     Route::get('profile', [UserController::class, 'profile']);
     Route::post('profileupdate', [UserController::class, 'updateProfile']);
     Route::get('card', [UserController::class, 'cadr']);
     Route::post('storeDepartment', [DepartmentController::class, 'store']);
+    Route::get('showAllDepartment', [DepartmentController::class, 'index']);
+    Route::post('addUser', [UserController::class, 'addUser']);
+    Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
+
 });
