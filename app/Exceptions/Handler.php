@@ -4,8 +4,7 @@ namespace App\Exceptions;
 
 use App\Helpers\ResponseHelper;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
-
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 class Handler extends ExceptionHandler
 {
     /**
@@ -24,8 +23,12 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->renderable(function (AccessDeniedException $e,$request) {
-            ResponseHelper::Error('','You do not have the required authoriztion',403);
+        $this->renderable(function (AccessDeniedHttpException $e, $request) {
+            return ResponseHelper::Error(
+                '',
+                'You do not have the required authorization',
+                403
+            );
         });
     }
 }
