@@ -1,24 +1,54 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Models;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
-class addUserRequest extends FormRequest
+class User extends Authenticatable
 {
-    public function authorize(): bool
+    use HasApiTokens, HasFactory, Notifiable;
+    use HasRoles;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $guarded=[];
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    public function volunteerProfile()
     {
-        return true;
+        return $this->hasOne(VolunteerProfile::class);
     }
-    public function rules(): array
+// في موديل User.php
+    public function getImageUrlAttribute()
     {
-        return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'phone' => 'nullable|string|unique:users,phone',
-            'department_id' => 'nullable|exists:departments,id',
-            'role' => 'required|exists:roles,name',
-        ];
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+    public function managedDepartment() {
+        return $this->hasOne(Department::class, 'manager_id');
     }
 }

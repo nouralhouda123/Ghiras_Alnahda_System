@@ -74,13 +74,13 @@ class UserController extends Controller
         ], 'User profile data', 200);
     }
 //اضافة User
-public function addUser(addUserRequest $request ){
-$data=$this->userService->createUser($request);
-            if ($data['code'] === 200) {
-                return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-            } else {
-                return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-            }}
+    public function addUser(addUserRequest $request ){
+        $data=$this->userService->createUser($request);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
     public function getRoleNames()
     {
         $roles = Role::pluck('name');

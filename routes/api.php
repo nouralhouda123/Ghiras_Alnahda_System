@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [UserController::class, 'logout']);
     Route::post('create_Campanig', [CampaignController::class, 'create']);
     Route::get('show_Campanig', [CampaignController::class, 'show']);
-        Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
+    Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
     Route::get('profile', [UserController::class, 'profile']);
     Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
     Route::get('profile', [UserController::class, 'profile']);

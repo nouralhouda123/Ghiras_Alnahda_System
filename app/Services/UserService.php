@@ -107,18 +107,18 @@ class UserService
     public function createUser(addUserRequest $request)
     {
         return DB::transaction(function () use ($request) {
-        $user = $this->userRepository->create_User($request->toArray());
-        $user->assignRole($request->role);
-        $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
-        $user->givePermissionTo($permissions);
-        $user = User::with('roles.permissions', 'permissions')->find($user->id);
-        $user = User::query()->find($user->id);
-        $user = $this->appendRolesAndPermission($user);
-        return [
-            'user' => $user,
-            'message' => 'Success',
-            'code' => 200
-        ];});}
+            $user = $this->userRepository->create_User($request->toArray());
+            $user->assignRole($request->role);
+            $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
+            $user->givePermissionTo($permissions);
+            $user = User::with('roles.permissions', 'permissions')->find($user->id);
+            $user = User::query()->find($user->id);
+            $user = $this->appendRolesAndPermission($user);
+            return [
+                'user' => $user,
+                'message' => 'Success',
+                'code' => 200
+            ];});}
     private function appendRolesAndPermission($user)
     {
         $roles = [];

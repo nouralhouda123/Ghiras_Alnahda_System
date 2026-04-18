@@ -18,8 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             //اضافة قيم ثابتة لحقل حالة
-           $table->foreignId('department_id')
-               ->nullable()
+            $table->foreignId('department_id')
+                ->nullable()
                 ->constrained('departments')
                 ->nullOnDelete();
 
