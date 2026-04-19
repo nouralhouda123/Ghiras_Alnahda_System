@@ -12,7 +12,8 @@ class VolunteerRequestController extends Controller
     {
         // 1. التحقق من البيانات (Validation)
         $validatedData = $request->validate([
-            'age' => 'required|integer|min:15',
+            'age' => 'requi 
+            red|integer|min:15',
             'gender' => 'required|in:male,female',
             'current_address' => 'required|string|max:255',
             'cv' => 'required|file|mimes:pdf|max:2048',

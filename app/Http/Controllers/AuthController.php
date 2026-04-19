@@ -124,7 +124,7 @@ class AuthController extends Controller
             $user->image = asset('storage/' . $user->image);
         }
 
-        return ResponseHelper::Success($user, 'تم تحديث البروفايل بنجاح', 200);
+        return ResponseHelper::Success($user, 'profile apdted successfuly', 200);
     }
 
     public function card()
