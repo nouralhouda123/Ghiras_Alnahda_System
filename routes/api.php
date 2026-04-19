@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VolunteerRequestController;
@@ -17,24 +18,22 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
 Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
-Route::post('login', [AuthController::class, 'login'])->middleware('role.throttle');
+Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('logout', [UserController::class, 'logout']);
     Route::post('create_Campanig', [CampaignController::class, 'create']);
     Route::get('show_Campanig', [CampaignController::class, 'show']);
-        Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
-
-
-    Route::get('profile', [AuthController::class, 'profile']);
+    Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
+    Route::get('profile', [UserController::class, 'profile']);
     Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
-    Route::get('profile', [AuthController::class, 'profile']);
-    Route::post('profileupdate', [AuthController::class, 'updateProfile']);
-    Route::get('card', [AuthController::class, 'cadr']);
+    Route::get('profile', [UserController::class, 'profile']);
+    Route::post('profileupdate', [UserController::class, 'updateProfile']);
+    Route::get('card', [UserController::class, 'cadr']);
     Route::post('storeDepartment', [DepartmentController::class, 'store']);
-
-
+    Route::get('showAllDepartment', [DepartmentController::class, 'index']);
+    Route::post('addUser', [UserController::class, 'addUser']);
+    Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
 
 });

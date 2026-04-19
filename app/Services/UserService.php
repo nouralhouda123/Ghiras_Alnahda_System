@@ -1,16 +1,21 @@
 <?php
 
 namespace App\Services;
+use App\Http\Requests\addUserRequest;
 use App\Http\Requests\campaign_kpiRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UserRequest;
 use App\Mail\EmailVerificationMail;
+use App\Models\User;
 use App\Repositories\EmailVerficationRepository;
 use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\PermissionRegistrar;
+use function Symfony\Component\Routing\Loader\load;
 
 class UserService
 {
@@ -99,6 +104,35 @@ class UserService
         }
         return (['user' => $user, 'message' => $message, 'code' => $code]);
     }
+    public function createUser(addUserRequest $request)
+    {
+        return DB::transaction(function () use ($request) {
+            $user = $this->userRepository->create_User($request->toArray());
+            $user->assignRole($request->role);
+            $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
+            $user->givePermissionTo($permissions);
+            $user = User::with('roles.permissions', 'permissions')->find($user->id);
+            $user = User::query()->find($user->id);
+            $user = $this->appendRolesAndPermission($user);
+            return [
+                'user' => $user,
+                'message' => 'Success',
+                'code' => 200
+            ];});}
+    private function appendRolesAndPermission($user)
+    {
+        $roles = [];
+        foreach ($user->roles as $role) {
+            $roles[] = $role->name;
+        }
+        unset($user['roles']);
+        $user['roles'] = $roles;
+        $permissions = [];
+        foreach ($user->permissions as $permission) {
+            $permissions[] = $permission->name;
+        }
+        unset($user['permissions']);
+        $user['permissions'] = $permissions;
 
-
-}
+        return $user;
+    }}

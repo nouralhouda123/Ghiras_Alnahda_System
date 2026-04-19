@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\EmailVerificationRequest;
@@ -26,7 +25,8 @@ class AuthController extends Controller
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         } else {
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
+        }
+    }
 
 
     public function verify(EmailVerificationRequest $request)
@@ -36,9 +36,10 @@ class AuthController extends Controller
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         } else {
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
+        }
+    }
 
-    public function login(LoginRequest $request )
+    public function login(LoginRequest $request)
     {
         $data = $this->userService->login($request);
 
@@ -46,7 +47,8 @@ class AuthController extends Controller
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         } else {
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
+        }
+    }
 
 ///logout
     public function logout()
@@ -65,6 +67,7 @@ class AuthController extends Controller
 
 
     }
+}
 ///////
     // 1. تابع عرض بيانات البروفايل
     public function profile()
