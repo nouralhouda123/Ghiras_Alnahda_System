@@ -23,7 +23,7 @@ Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [UserController::class, 'logout']);
-    Route::post('create_Campanig', [CampaignController::class, 'create']);
+    Route::post('create_Campanig', [CampaignController::class, 'create'])->middleware('can:create.campaign');
     Route::get('show_Campanig', [CampaignController::class, 'show']);
     Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
     Route::get('profile', [UserController::class, 'profile']);
@@ -33,7 +33,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('card', [UserController::class, 'cadr']);
     Route::post('storeDepartment', [DepartmentController::class, 'store']);
     Route::get('showAllDepartment', [DepartmentController::class, 'index']);
-    Route::post('addUser', [UserController::class, 'addUser']);
+    //قسم الادارة
+    Route::post('addUser', [UserController::class, 'addUser'])->middleware('can:add.user');
     Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
+    Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig'])
+        ->middleware('can:show.Employee');
+        Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee'])
+            ->middleware('can:Update.Employee');
+    Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);
+        Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee'])
+            ->middleware('can:Showdetail.Employee');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 });

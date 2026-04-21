@@ -19,15 +19,13 @@ return new class extends Migration
                 'charity'        // خيرية
             ]);
             $table->enum('status', [
-                'draft',              // مسودة (لم تُرسل بعد)
                 'pending_approval',   // بانتظار موافقة المدير العام
                 'approved',           // تمت الموافقة
                 'rejected',           // مرفوضة
                 'ongoing',            // قيد التنفيذ
-                'pending_evaluation', // بانتظار مراقبة وتقييم
                 'completed',         // مكتملة
                 'archived'           // مؤرشفة
-            ])->default('draft');
+            ])->default('pending_approval');
             $table->enum('priority', [
                 'low',
                 'medium',

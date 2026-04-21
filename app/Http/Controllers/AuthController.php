@@ -27,8 +27,6 @@ class AuthController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }
     }
-
-
     public function verify(EmailVerificationRequest $request)
     {
         $data = $this->userService->Verify($request);
@@ -38,7 +36,6 @@ class AuthController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }
     }
-
     public function login(LoginRequest $request)
     {
         $data = $this->userService->login($request);
@@ -49,7 +46,6 @@ class AuthController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }
     }
-
 ///logout
     public function logout()
     {

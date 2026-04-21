@@ -22,11 +22,11 @@ class RolePermissionSeeder extends Seeder
         $volunteer = Role::firstOrCreate(['name' => 'Volunteer']);
         $permissions = [
             'view.user',
-            'create.user',
+            'add.user',
             'edit.user',
             'delete.user',
             'ban.user',
-
+            'show.Employee',
             'view.department',
             'view.department.details',
             'create.department',
@@ -76,10 +76,11 @@ class RolePermissionSeeder extends Seeder
             'submit.evaluation',
             'view.evaluation.result',
             'send.evaluation.report',
+            'Showdetail.Employee',
 
             'view.task',
             'update.task.status',
-
+            'Update.Employee',
             'view.course',
             'enroll.course',
 
@@ -103,6 +104,10 @@ class RolePermissionSeeder extends Seeder
 
         $campaignManager->givePermissionTo([
             'view.campaign',
+            'add.user',
+            'show.Employee',
+            'Update.Employee',
+            'Showdetail.Employee',
             'view.campaign.details',
             'create.campaign',
             'edit.campaign',
@@ -126,6 +131,8 @@ class RolePermissionSeeder extends Seeder
 
         $campaignEmployee->givePermissionTo([
             'view.campaign',
+            'show.Employee',
+
             'view.campaign.details',
             'view.attendance',
             'view.donation',
@@ -139,8 +146,12 @@ class RolePermissionSeeder extends Seeder
 
         $evaluationManager->givePermissionTo([
             'view.evaluation.request',
+            'show.Employee',
+            'Update.Employee',
+            'Showdetail.Employee',
             'create.survey',
             'edit.survey',
+            'add.user',
             'assign.evaluation.task',
             'view.evaluation.result',
             'send.evaluation.report',
@@ -152,6 +163,8 @@ class RolePermissionSeeder extends Seeder
 
         $evaluationOfficer->givePermissionTo([
             'view.task',
+            'show.Employee',
+
             'update.task.status',
             'submit.evaluation',
             'view.evaluation.request',
@@ -161,6 +174,7 @@ class RolePermissionSeeder extends Seeder
 
         $volunteerManager->givePermissionTo([
             'view.volunteer',
+            'show.Employee',
             'view.volunteer.details',
             'view.top.volunteers',
             'promote.volunteer',
@@ -210,19 +224,14 @@ class RolePermissionSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $adminUser->assignRole('Super Admin');
-        $ManagerCampanigUser=User::firstOrCreate(
-            [
-                'name' => 'ManagerCampanigSedder',
-            ],
-            [
-                'name' => 'ManagerCampanigSedder',
-                'password' => Hash::make('12345678'),
-                'email_verified_at' => now(),
-            ]
-        );
+        $adminUser->syncRoles('Super Admin');
+        $ManagerCampanigUser = User::firstOrCreate([
+            'email' => 'lujenchaban1234@gmail.com'
+        ], [
+            'name' => 'ManagerCampaignSeeder',
+            'password' => Hash::make('12345678')
+        ]);
 
-        $ManagerCampanigUser->assignRole('Campaign Manager');
-
+        $ManagerCampanigUser->syncRoles(['Campaign Manager']);
     }
 }

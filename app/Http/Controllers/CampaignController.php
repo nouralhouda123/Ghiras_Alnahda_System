@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\addUserRequest;
 use App\Http\Requests\CampaingRequest;
+use App\Http\Requests\SearchCampaignRequest;
 use App\Models\Campaign;
 use App\Services\CampaignService;
 use App\Services\UserService;
@@ -59,6 +61,16 @@ class CampaignController extends Controller
     public function indexDetail($id)
     {
         $data=$this->campaignService->indexDetail($id);
+        if($data['code']===200){
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }
+    }
+//بحث عن حملة
+    public function SearchCampaign(SearchCampaignRequest  $request)
+    {
+        $data=$this->campaignService->SearchCampaign($request);
         if($data['code']===200){
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         } else {

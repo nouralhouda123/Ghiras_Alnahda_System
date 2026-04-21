@@ -23,8 +23,11 @@ return new class extends Migration
                 ->constrained('departments')
                 ->nullOnDelete();
 
-            $table->string('status')->default('active');
-            $table->string('phone')->nullable()->unique();
+            $table->enum('status', [
+                'active',
+                'banned',
+                'suspended',
+            ])->default('active');            $table->string('phone')->nullable()->unique();
             $table->string('image')->nullable();
             $table->rememberToken();
             $table->timestamps();

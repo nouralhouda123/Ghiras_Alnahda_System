@@ -1,9 +1,12 @@
 <?php
 namespace App\Services;
 use App\Helpers\StorageHelper;
+use App\Http\Requests\addUserRequest;
 use App\Http\Requests\CampaingRequest;
+use App\Http\Requests\SearchCampaignRequest;
 use App\Http\Resources\CampaignDetailsResource;
 use App\Http\Resources\CampaignResource;
+use App\Http\Resources\UserResource;
 use App\Repositories\CampaingRepository;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -105,7 +108,15 @@ class CampaignService
             'message' => 'the campaign_id  is not found',
             'code' => 404
         ];
-
     }
+    public function SearchCampaign(SearchCampaignRequest $request)
+    {
+        $campanig = $this->CampaingRepository->Search($request);
 
-    }
+            return [
+                'user' =>  CampaignResource::collection($campanig),
+                'message' => 'Campaign retrieved successfully',
+                'code' => 200
+            ];
+        }
+}
