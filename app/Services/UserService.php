@@ -102,17 +102,7 @@ class UserService
             'message' => 'Login successful',
             'code' => 200
         ];
-           }  private function appendRolesAndPermissions($user)
-{
-    return [
-
-        // roles فقط أسماء
-        'roles' => $user->getRoleNames(),
-
-        // permissions من الأدوار
-        'permissions' => $user->getPermissionsViaRoles()->pluck('name')->values(),
-    ];
-}
+           }  
     public function logout()
     {
         $user = Auth::user();
