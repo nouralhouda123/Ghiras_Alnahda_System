@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 use App\Http\Requests\addUserRequest;
 use App\Http\Requests\campaign_kpiRequest;
@@ -20,11 +19,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\PermissionRegistrar;
 use function Symfony\Component\Routing\Loader\load;
-
 class UserService
 {
     use AuthorizesRequests;
-
     protected $userRepository;
     protected $emailRepository;
     public function __construct(userRepository $userRepository, EmailVerficationRepository $emailRepository)
