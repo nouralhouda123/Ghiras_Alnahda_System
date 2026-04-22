@@ -22,10 +22,10 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('logout', [UserController::class, 'logout']);
+   // Route::post('logout', [UserController::class, 'logout']);
     Route::post('create_Campanig', [CampaignController::class, 'create'])->middleware('can:create.campaign');
     Route::post('logout', [UserController::class, 'logout']) ;
-    Route::post('create_Campanig', [CampaignController::class, 'create']);
+    //Route::post('create_Campanig', [CampaignController::class, 'create']);
     Route::get('show_Campanig', [CampaignController::class, 'show']);
     Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
     Route::get('profile', [UserController::class, 'profile']);
