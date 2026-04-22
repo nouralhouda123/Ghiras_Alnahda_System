@@ -1,54 +1,74 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Requests;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 
-class User extends Authenticatable
+class addUserRequest extends FormRequest
 {
-    use HasApiTokens, HasFactory, Notifiable;
-    use HasRoles;
-
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * Determine if the user is authorized to make this request.
      */
-    protected $guarded=[];
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-
-    public function volunteerProfile()
+    public function authorize(): bool
     {
-        return $this->hasOne(VolunteerProfile::class);
+        return true;
     }
-// في موديل User.php
-    public function getImageUrlAttribute()
+
+    /**
+     * Get the validation rules that apply to the request.
+     */
+    public function rules(): array
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+            'phone' => ['required', 'unique:users,phone'],
+            'department_id' => ['required', 'exists:departments,id'],
+            'role' => ['required', 'exists:roles,name'],
+        ];
     }
-    public function managedDepartment() {
-        return $this->hasOne(Department::class, 'manager_id');
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        // يمكنك تجهيز البيانات هنا
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     */
+
+    /**
+     * Get custom messages for validation errors.
+     */
+
+        public function messages(): array
+    {
+        return [
+            'name.required' => 'The name field is required.',
+            'name.string' => 'The name must be a valid string.',
+            'name.max' => 'The name may not be greater than 255 characters.',
+
+            'email.required' => 'The email field is required.',
+            'email.email' => 'The email format is invalid.',
+            'email.unique' => 'This email is already taken.',
+
+            'password.required' => 'The password field is required.',
+            'password.string' => 'The password must be a valid string.',
+            'password.min' => 'The password must be at least 8 characters.',
+
+            'phone.required' => 'The phone number is required.',
+            'phone.unique' => 'This phone number is already taken.',
+
+            'department_id.required' => 'The department is required.',
+            'department_id.exists' => 'The selected department is invalid.',
+
+            'role.required' => 'The role is required.',
+            'role.exists' => 'The selected role is invalid.',
+        ];
     }
 }

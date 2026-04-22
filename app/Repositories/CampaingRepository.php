@@ -48,4 +48,20 @@ class CampaingRepository
     public function indexDetail( $id)
     {
         return Campaign::with('Campaign_kpis')->find($id);
-    }}
+    }
+
+    public function Search($request)
+    {
+        $query=Campaign::query();
+        if($request->filled('title')){
+            $query->where('title','like','%'.$request->title)  ;
+        }
+        if($request->filled('status')){
+            $query->where('status','like','%'.$request->status)  ;
+        }
+        if($request->filled('type')){
+            $query->where('type','like','%'.$request->type)  ;
+        }
+        return $query->get() ;
+    }
+}

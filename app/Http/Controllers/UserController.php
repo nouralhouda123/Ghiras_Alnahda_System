@@ -5,16 +5,21 @@ use App\Helpers\ResponseHelper;
 use App\Http\Requests\addUserRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
+
     protected $userService;
     public function __construct(UserService $userService)
     {
@@ -75,6 +80,7 @@ class UserController extends Controller
     }
 //اضافة User
     public function addUser(addUserRequest $request ){
+        $this->authorize('create', [User::class, $request->role, $request->department_id]);
         $data=$this->userService->createUser($request);
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
@@ -86,8 +92,39 @@ class UserController extends Controller
         $roles = Role::pluck('name');
         return ResponseHelper::Success($roles, 'Roles fetched successfully', 200);
     }
+//عرض كل  موظفين الحملات و مدير المتطوعين
+    public function showAllEmployeeCampanig(  ){
+        $data=$this->userService->getVisibleUsers(Auth::user());
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
+//بحث عن موظف حملة او مدير متطوعين  حسب دوره او الاسم
+    public function searchEmployee(Request $request){
+        $data=$this->userService->searchEmployee($request);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
 
-
+////تعديل بيانات  موظف حملة او مدير متطوعين
+    public function UpdateEmployee(UpdateUserRequest $request,$id){
+        $data=$this->userService->UpdateEmployee($request,$id);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
+//عرض تفاصيل موظف
+    public function ShowdetailEmployee($id){
+        $data=$this->userService->ShowdetailEmployee($id);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
 
 
 
