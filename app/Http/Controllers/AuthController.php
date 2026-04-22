@@ -1,14 +1,17 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Routing\Controller;
+
 class AuthController extends Controller
 {
     protected $userService;
@@ -18,128 +21,95 @@ class AuthController extends Controller
         $this->userService = $userService;
     }
 
-    public function register(UserRequest $request)
-    {
+    // --- تسجيل الدخول والتحقق (جاهزة كما هي) ---
+    public function register(UserRequest $request) {
         $data = $this->userService->register($request);
-        if ($data['code'] === 200) {
-            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }
+        return ($data['code'] === 200) 
+            ? ResponseHelper::Success($data['user'], $data['message'], 200) 
+            : ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
 
-
-    public function verify(EmailVerificationRequest $request)
-    {
+    public function verify(EmailVerificationRequest $request) {
         $data = $this->userService->Verify($request);
-        if ($data['code'] === 200) {
-            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }
+        return ($data['code'] === 200) 
+            ? ResponseHelper::Success($data['user'], $data['message'], 200) 
+            : ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
 
-    public function login(LoginRequest $request)
-    {
+    public function login(LoginRequest $request) {
         $data = $this->userService->login($request);
-
-        if ($data['code'] === 200) {
-            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }
+        return ($data['code'] === 200) 
+            ? ResponseHelper::Success($data['user'], $data['message'], 200) 
+            : ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
 
-///logout
-    public function logout()
-    {
-        $data = [];
+    public function logout() {
         try {
             $data = $this->userService->logout();
-            if ($data['code'] === 200) {
-                return ResponseHelper::Success([], $data['message'], $data['code']);
-            } else {
-                return ResponseHelper::Error([], $data['message'], $data['code']);
-            }
+            return ResponseHelper::Success([], $data['message'], 200);
         } catch (\Exception $e) {
             return ResponseHelper::Error(null, "Unexpected error: " . $e->getMessage(), 500);
         }
-
-
     }
-}
-///////
-    // 1. تابع عرض بيانات البروفايل
-    public function profile()
-    {
+
+    // --- الدوال التي كانت خارج القوس ---
+
+    public function profile() {
         $user = auth()->user();
-
-        // بناء الرابط الكامل للصورة: إذا كانت موجودة نضع الرابط، وإذا لا نضع null
-        $imageUrl = $user->image ? asset('storage/' . $user->image) : null;
-
-        // تحديد البيانات التي تريدين إرجاعها فقط ليكون الرد نظيفاً
         $responseData = [
             'id'                => $user->id,
             'name'              => $user->name,
             'email'             => $user->email,
             'phone'             => $user->phone,
-            'profile_image_url' => $imageUrl, // الرابط الكامل هنا
+            'profile_image_url' => $user->image ? asset('storage/' . $user->image) : null,
             'created_at'        => $user->created_at,
         ];
-
         return ResponseHelper::Success($responseData, 'Profile data retrieved successfully', 200);
     }
 
-// 2. تابع تحديث بيانات البروفايل
-    public function updateProfile(Request $request)
-    {
+    public function updateProfile(Request $request) {
         $user = auth()->user();
 
-        // التحقق من البيانات القادمة من Postman
         $request->validate([
             'name'  => 'nullable|string|max:255',
             'phone' => 'nullable|string|unique:users,phone,' . $user->id,
             'email' => 'nullable|email|unique:users,email,' . $user->id,
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // التحقق من الصورة
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // تحديث البيانات النصية
         if ($request->has('name'))  $user->name = $request->name;
         if ($request->has('phone')) $user->phone = $request->phone;
         if ($request->has('email')) $user->email = $request->email;
 
-        // التعامل مع رفع الصورة
         if ($request->hasFile('image')) {
-            // حذف الصورة القديمة إذا كانت موجودة (اختياري لتوفير المساحة)
-            if ($user->getRawOriginal('image')) {
-                Storage::disk('public')->delete($user->getRawOriginal('image'));
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
             }
-
-            // تخزين الصورة الجديدة في مجلد profile_images داخل storage/app/public
             $path = $request->file('image')->store('profile_images', 'public');
             $user->image = $path;
         }
 
         $user->save();
 
-        // إضافة الرابط الكامل للصورة قبل إرسال الرد
-        if ($user->image) {
-            $user->image = asset('storage/' . $user->image);
-        }
+        // إرجاع الرابط الكامل في الرد
+        $user->image = $user->image ? asset('storage/' . $user->image) : null;
 
-        return ResponseHelper::Success($user, 'profile apdted successfuly', 200);
+        return ResponseHelper::Success($user, 'Profile updated successfully', 200);
     }
 
-    public function card()
-    {
+    public function card() {
         $user = auth()->user();
+
+        // تأكد من وجود بروفايل متطوع أولاً لتجنب الـ Error
+        $qrCode = ($user->volunteerProfile) 
+                  ? asset('storage/' . $user->volunteerProfile->qr_code) 
+                  : null;
 
         return ResponseHelper::Success([
             'fullName' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'qr_code' => asset('storage/' . $user->volunteerProfile->qr_code),
-        ], 'User profile data', 200);
+            'email'    => $user->email,
+            'phone'    => $user->phone,
+            'qr_code'  => $qrCode,
+        ], 'User card data', 200);
     }
-}
-
+} // نهاية الكلاس الصحيحة

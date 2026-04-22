@@ -1,54 +1,88 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Requests\VolunteerStoreRequest;
 use App\Models\JoinRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use App\Services\VolunteerRequestService;
 class VolunteerRequestController extends Controller
-{
-    public function store(Request $request)
+{protected $service;
+
+    // حقن الخدمة في الكنترولر
+    public function __construct(VolunteerRequestService $service)
     {
-        // 1. التحقق من البيانات (Validation)
-        $validatedData = $request->validate([
-            'age' => 'requi 
-            red|integer|min:15',
-            'gender' => 'required|in:male,female',
-            'current_address' => 'required|string|max:255',
-            'cv' => 'required|file|mimes:pdf|max:2048',
+        $this->service = $service;
+    }
 
-            // الحقول الجديدة بناءً على تعديلات الـ enum
-            'preferred_sector' => 'required|in:relief,educational,medical,administrative',
-            'preferred_field' => 'required|in:food_distribution,psychological_support,teaching,data_entry,media_marketing,logistics,first_aid',
-            'weekly_hours_capacity' => 'required|integer|min:1|max:168',
-            'message_title' => 'nullable|string|max:255',
-            'message_content' => 'nullable|string',
+    /**
+     * 1. عرض جميع الطلبات المعلقة (للمسؤول)
+     */
+    public function index()
+    {
+        $requests = $this->service->getPendingRequests();
+        return response()->json([
+            'success' => true,
+            'data' => $requests
+        ]);
+    }
+
+    /**
+     * 2. عرض تفاصيل طلب واحد
+     */
+    public function show($id)
+    {
+        $request = $this->service->getRequestDetails($id);
+        return response()->json([
+            'success' => true,
+            'data' => $request
+        ]);
+    }
+
+    /**
+     * 3. تخزين طلب تطوع جديد (للمستخدم)
+     */
+   public function store(VolunteerStoreRequest $request)
+{
+    // 1. ارفعي ملف الـ CV وخزني المسار في متغير
+    $path = $request->file('cv')->store('volunteer_cvs', 'public');
+
+    // 2. خذي البيانات التي تم التحقق منها (age, gender, etc.)
+    $data = $request->validated();
+
+    // 3. الخطوة السحرية: احذفي 'cv' من المصفوفة لأننا لا نريد تخزين "الملف" بل "المسار"
+    unset($data['cv']);
+
+    // 4. أضيفي الحقول التي يحتاجها الجدول يدوياً
+    $data['user_id'] = auth()->id(); // معرف المستخدم الحالي
+    $data['cv_path'] = $path;        // المسار الذي حصلنا عليه في الخطوة 1
+    $data['status']  = 'pending';    // الحالة الافتراضية
+
+    // 5. الآن احفظي البيانات في قاعدة البيانات
+    $joinRequest = \App\Models\JoinRequest::create($data); 
+
+    return response()->json([
+        'message' => 'Volunteer request submitted successfully!',
+        'cv_url' => asset('storage/' . $path),
+        'data' => $joinRequest
+    ], 201);
+}
+
+    /**
+     * 4. قبول أو رفض الطلب (للمسؤول)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        // نتحقق من أن الحالة المرسلة إما approved أو rejected
+        $request->validate([
+            'status' => 'required|in:approved,rejected'
         ]);
 
-        // 2. رفع ملف الـ CV
-        $path = $request->file('cv')->store('volunteer_cvs', 'public');
-
-        // 3. إنشاء الطلب
-        $joinRequest = JoinRequest::create([
-            'user_id' => auth()->id(),
-            'age' => $validatedData['age'],
-            'gender' => $validatedData['gender'],
-            'current_address' => $validatedData['current_address'],
-            'cv_path' => $path,
-            'preferred_sector' => $validatedData['preferred_sector'],
-            'preferred_field' => $validatedData['preferred_field'],
-            'weekly_hours_capacity' => $validatedData['weekly_hours_capacity'],
-            'message_title' => $validatedData['message_title'] ?? null,
-            'message_content' => $validatedData['message_content'] ?? null,
-            'status' => 'pending',
-        ]);
+        $result = $this->service->processStatus($id, $request->status);
 
         return response()->json([
-            'message' => 'Volunteer request submitted successfully!',
-            'data' => array_merge($joinRequest->toArray(), [
-                'cv_url' => asset('storage/' . $path)
-            ])
-        ], 201);
+            'message' => "Request status updated to {$request->status} successfully.",
+            'data' => $result
+        ]);
     }
 }
