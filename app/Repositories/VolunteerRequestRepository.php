@@ -1,14 +1,9 @@
 <?php
-
-
 namespace App\Repositories;
 use App\Models\JoinRequest;
 use App\Models\VolunteerProfile;
-
 class VolunteerRequestRepository
 {
-
-
     public function findById($id)
     {
         return JoinRequest::findOrFail($id);
@@ -23,17 +18,10 @@ class VolunteerRequestRepository
     {
         return VolunteerProfile::create($data);
     }
-
     public function getAllPending()
 {
-    return \App\Models\JoinRequest::with('user')
+    return JoinRequest::with('user')
         ->where('status', 'pending')
         ->get();
 }
-
-    public function create(array $data)
-    {
-        return JoinRequest::create($data);
-
-    }
 }
