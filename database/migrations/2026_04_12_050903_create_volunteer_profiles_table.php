@@ -15,14 +15,12 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female']);
             $table->string('current_address');
             $table->string('cv_path');
-            // --- القطاع (Preferred Sector) ---
             $table->enum('preferred_sector', [
                 'relief',        // إغاثي
                 'educational',   // تعليمي
                 'medical',       // طبي
                 'administrative' // إداري
             ])->nullable();
-            // --- المجال (Preferred Field) تحويله لـ enum بناءً على طلبكِ ---
             $table->enum('preferred_field', [
                 'food_distribution',   // توزيع سلال غذائية
                 'psychological_support',// دعم نفسي
@@ -32,12 +30,7 @@ return new class extends Migration
                 'logistics',           // لوجستيك وتنظيم
                 'first_aid'            // إسعاف أولي
             ])->nullable();
-            // عدد ساعات العمل الأسبوعية
             $table->integer('weekly_hours_capacity')->nullable();
-            // حقول الرسالة
-            $table->string('message_title')->nullable();
-            $table->text('message_content')->nullable();
-            // إحصائيات التطوع
             $table->integer('totalHours')->default(0);
             $table->integer('pointsBalance')->default(0);
             $table->boolean('isTeamLeader')->default(false);

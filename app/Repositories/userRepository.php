@@ -23,6 +23,15 @@ class userRepository
             'email_verified_at' => now(),
         ]);
     }
+    public function create_instructor(array $data): User
+    {
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'email_verified_at' => now(),
+        ]);
+    }
 
     public function create_User(array $data): User
     {

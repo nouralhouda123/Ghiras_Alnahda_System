@@ -32,12 +32,11 @@ class RolePermissionSeeder extends Seeder
             'create.department',
             'edit.department',
             'assign.department.manager',
-
             'view.dashboard.kpi',
             'view.statistics',
             'view.statistics.details',
             'view.growth.metrics',
-
+'add.course',
             'view.campaign',
             'view.campaign.details',
             'create.campaign',
@@ -103,6 +102,7 @@ class RolePermissionSeeder extends Seeder
         $superAdmin->givePermissionTo(Permission::all());
 
         $campaignManager->givePermissionTo([
+            'add.course',
             'view.campaign',
             'add.user',
             'show.Employee',

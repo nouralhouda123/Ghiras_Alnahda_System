@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\courseController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DepartmentController;
@@ -22,14 +23,12 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
 Route::middleware('auth:sanctum')->group(function () {
-   // Route::post('logout', [UserController::class, 'logout']);
     Route::post('create_Campanig', [CampaignController::class, 'create'])->middleware('can:create.campaign');
     Route::post('logout', [UserController::class, 'logout']) ;
-    //Route::post('create_Campanig', [CampaignController::class, 'create']);
     Route::get('show_Campanig', [CampaignController::class, 'show']);
     Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
     Route::get('profile', [UserController::class, 'profile']);
-   // Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
+    Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
     Route::get('profile', [UserController::class, 'profile']);
     Route::post('profileupdate', [UserController::class, 'updateProfile']);
     Route::get('card', [UserController::class, 'cadr']);
@@ -45,10 +44,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);
         Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee'])
             ->middleware('can:Showdetail.Employee');
-
-
-
-
+//قسم الكورسات
+    Route::post('addCourse', [\App\Http\Controllers\courseController::class, 'create'])
+        ->middleware('can:add.course');
+    Route::get('indexAllCourses', [\App\Http\Controllers\courseController::class, 'index']);
+    Route::post('indexDetailCourse/{id}', [\App\Http\Controllers\courseController::class, 'show']);
+    Route::post('courses/enroll/{id}', [CourseController::class, 'store']);
 
 
 
@@ -72,7 +73,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 3. عرض تفاصيل طلب واحد
     Route::get('showVolunteerRequest/{id}', [VolunteerRequestController::class, 'show']);
-
     // 4. قبول أو رفض الطلب
     Route::post('updateVolunteerRequestStatus/{id}', [VolunteerRequestController::class, 'updateStatus']);
 

@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class JoinRequest extends Model
+class instructor_profile extends Model
 {
-    protected $guarded=[];
-
     use HasFactory;
-    public function user()
+    protected $guarded=[];
+    public function USER(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+
 }

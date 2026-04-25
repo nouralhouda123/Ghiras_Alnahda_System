@@ -26,8 +26,6 @@ class VolunteerStoreRequest extends FormRequest
             'gender' => 'required|in:male,female',
             'current_address' => 'required|string|max:255',
             'cv' => 'required|file|mimes:pdf|max:2048',
-
-            // الحقول الجديدة بناءً على تعديلات الـ enum
             'preferred_sector' => 'required|in:relief,educational,medical,administrative',
             'preferred_field' => 'required|in:food_distribution,psychological_support,teaching,data_entry,media_marketing,logistics,first_aid',
             'weekly_hours_capacity' => 'required|integer|min:1|max:168',

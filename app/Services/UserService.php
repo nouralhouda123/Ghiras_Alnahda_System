@@ -35,7 +35,9 @@ class UserService
     }
     public function register(UserRequest $request): array
     {
-        $user = $this->userRepository->create($request->validated());
+        return DB::transaction(function () use ($request) {
+
+            $user = $this->userRepository->create($request->validated());
         $code = $this->generateVerificationCode();
         $this->emailRepository->deleteByEmail($request->email);
         $verification = $this->emailRepository->create($request->email, $code);
@@ -46,7 +48,7 @@ class UserService
             'message' => 'Registration success. Please check your email to verify your account',
             'code' => 201
         ];
-    }
+    });}
 
     public function Verify(EmailVerificationRequest $request){
         $emailverfication = $this->emailRepository->exists($request);
@@ -99,7 +101,7 @@ class UserService
             'message' => 'Login successful',
             'code' => 200
         ];
-           }  
+           }
     public function logout()
     {
         $user = Auth::user();

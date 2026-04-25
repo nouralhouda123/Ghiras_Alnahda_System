@@ -38,17 +38,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-
     public function volunteerProfile()
     {
         return $this->hasOne(VolunteerProfile::class);
     }
-// في موديل User.php
+    public function Instructor_profile()
+    {
+        return $this->hasOne(instructor_profile::class);
+    }
+    public function JoinRequests()
+    {
+        return $this->hasMany(JoinRequest::class);
+    }
     public function getImageUrlAttribute()
     {
         return $this->image ? asset('storage/' . $this->image) : null;
     }
     public function managedDepartment() {
         return $this->hasOne(Department::class, 'manager_id');
+    }
+    public function specializations()
+    {
+        return $this->belongsToMany(Specialization::class, 'instructor_specializations');
     }
 }
