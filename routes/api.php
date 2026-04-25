@@ -35,7 +35,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('storeDepartment', [DepartmentController::class, 'store']);
     Route::get('showAllDepartment', [DepartmentController::class, 'index']);
     //قسم الادارة
-    Route::post('addUser', [UserController::class, 'addUser'])->middleware('can:add.user');
+    Route::post('addUser', [UserController::class, 'addUser']);
+        //->middleware('can:add.user');
     Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
     Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig'])
         ->middleware('can:show.Employee');

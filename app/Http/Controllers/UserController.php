@@ -80,7 +80,7 @@ class UserController extends Controller
     }
 //اضافة User
     public function addUser(addUserRequest $request ){
-        $this->authorize('create', [User::class, $request->role, $request->department_id]);
+      //  $this->authorize('create', [User::class, $request->role, $request->department_id]);
         $data=$this->userService->createUser($request);
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
