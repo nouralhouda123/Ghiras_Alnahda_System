@@ -23,7 +23,8 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('create_Campanig', [CampaignController::class, 'create'])->middleware('can:create.campaign');
+    Route::post('create_Campanig', [CampaignController::class, 'create']);
+        //->middleware('can:create.campaign');
     Route::post('logout', [UserController::class, 'logout']) ;
     Route::get('show_Campanig', [CampaignController::class, 'show']);
     Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
@@ -38,8 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('addUser', [UserController::class, 'addUser']);
         //->middleware('can:add.user');
     Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
-    Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig'])
-        ->middleware('can:show.Employee');
+    Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig']);
+       // ->middleware('can:show.Employee');
         Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee'])
             ->middleware('can:Update.Employee');
     Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);
