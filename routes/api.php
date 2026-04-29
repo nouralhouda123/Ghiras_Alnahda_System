@@ -41,11 +41,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
     Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig']);
        // ->middleware('can:show.Employee');
-        Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee'])
-            ->middleware('can:Update.Employee');
+        Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee']);
+       //     ->middleware('can:Update.Employee');
     Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);
-        Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee'])
-            ->middleware('can:Showdetail.Employee');
+        Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee']);
+           // ->middleware('can:Showdetail.Employee');
 //قسم الكورسات
     Route::post('addCourse', [\App\Http\Controllers\courseController::class, 'create'])
         ->middleware('can:add.course');

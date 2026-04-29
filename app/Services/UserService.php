@@ -152,14 +152,11 @@ class UserService
     {
 
         $role = $authUser->getRoleNames()->first();
-
         $map = [
             'Campaign Manager' => ['Campaign Employee', 'Volunteer Manager'],
             'Evaluation Manager' => ['Evaluation Officer'],
         ];
-
         $allowedRoles = $map[$role] ?? [];
-
         $user= $this->userRepository->getByRolesAndDepartment(
             $allowedRoles,
             $authUser->department_id
