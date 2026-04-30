@@ -224,14 +224,13 @@ class RolePermissionSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $adminUser->syncRoles('Super Admin');
+        $adminUser->assignRole('Super Admin');
         $ManagerCampanigUser = User::firstOrCreate([
             'email' => 'lujenchaban1234@gmail.com'
         ], [
             'name' => 'ManagerCampaignSeeder',
             'password' => Hash::make('12345678')
         ]);
-
-        $ManagerCampanigUser->syncRoles(['Campaign Manager']);
+        $ManagerCampanigUser->assignRole(['Campaign Manager']);
     }
 }

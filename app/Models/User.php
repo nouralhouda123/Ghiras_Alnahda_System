@@ -50,6 +50,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(JoinRequest::class);
     }
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
     public function getImageUrlAttribute()
     {
         return $this->image ? asset('storage/' . $this->image) : null;

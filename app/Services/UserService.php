@@ -148,32 +148,30 @@ class UserService
         return $user;
     }
 
-    public function getVisibleUsers($authUser)
+    public function getVisibleUsers($Auth_user)
     {
+        $data = $this->userRepository->getAll();
+        $array = [];
 
-        $role = $authUser->getRoleNames()->first();
-        $map = [
-            'Campaign Manager' => ['Campaign Employee', 'Volunteer Manager'],
-            'Evaluation Manager' => ['Evaluation Officer'],
-        ];
-        $allowedRoles = $map[$role] ?? [];
-        $user= $this->userRepository->getByRolesAndDepartment(
-            $allowedRoles,
-            $authUser->department_id
-        );
+        foreach ($data as $user) {
+
+            if ($Auth_user->id !== $user->id && $Auth_user->can('view', $user)) {
+                $array[] = $user;
+            }
+
+        }
+
         return [
-            'user' =>  UserResource::collection($user),
-            'message' => ' employees successfully',
+            'user' => UserResource::collection($array),
+            'message' => 'successfully',
             'code' => 200
         ];
-
     }
-
-    public function searchEmployee($request){
-            $user = $this->userRepository->searchEmployee($request);
+    public function searchUser($request){
+            $user = $this->userRepository->searchUser($request);
         return [
-            'user' => $user,
-            'message' => 'employees retrieved successfully',
+            'user' => UserResource::collection($user),
+            'message' => 'Users retrieved successfully',
             'code' => 200
         ];
     }

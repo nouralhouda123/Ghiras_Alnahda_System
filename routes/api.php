@@ -52,7 +52,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('indexAllCourses', [\App\Http\Controllers\courseController::class, 'index']);
     Route::post('indexDetailCourse/{id}', [\App\Http\Controllers\courseController::class, 'show']);
     Route::post('courses/enroll/{id}', [CourseController::class, 'store']);
-
+//قسم المستخدمين
+    Route::get('showAllUsers', [UserController::class, 'showAllEmployeeCampanig']);
+    Route::post('UpdateUser/{id}', [UserController::class, 'UpdateEmployee']);
+    Route::post('ShowdetailUser/{id}', [UserController::class, 'ShowdetailEmployee']);
+    Route::post('searchUser', [UserController::class, 'searchUser']);
 
 
 

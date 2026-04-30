@@ -50,19 +50,27 @@ class userRepository
     {
         return User::query()->find($id);
     }
+    public function getAll()
+    {
+        return User::all();
+    }
 
-    public function searchEmployee($request)
+    public function searchUser($request)
     {
         $query = User::query();
-        if ($request->filled('role')) {
-            $query->where('role', $request->role);
-        }
-        if ($request->filled('name')) {
-            $query->where('name', 'like', '%' . $request->name);
 
-        }
-    }
-    public function UpdateEmployee($data, $id)
+        $query->when($request->filled('role'), function ($q) use ($request) {
+            $q->whereHas('roles', function ($r) use ($request) {
+                $r->where('name', $request->role);
+            });
+        });
+
+        $query->when($request->filled('name'), function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->name . '%');
+        });
+
+        return $query->get();
+    }    public function UpdateEmployee($data, $id)
     {
         $user=User::query()->find($id);
          $user->update([
@@ -80,5 +88,6 @@ class userRepository
             ->where('department_id', $departmentId)
             ->get();
     }
+
 
 }

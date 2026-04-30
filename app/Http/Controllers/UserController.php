@@ -101,8 +101,8 @@ class UserController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
 //بحث عن موظف حملة او مدير متطوعين  حسب دوره او الاسم
-    public function searchEmployee(Request $request){
-        $data=$this->userService->searchEmployee($request);
+    public function searchUser(Request $request){
+        $data=$this->userService->searchUser($request);
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         } else {
