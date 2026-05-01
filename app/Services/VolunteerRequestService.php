@@ -2,16 +2,21 @@
 
 namespace App\Services;
 
+use App\Models\User;
+use App\Repositories\userRepository;
 use App\Repositories\VolunteerRequestRepository;
 use Illuminate\Support\Facades\DB;
 
 class VolunteerRequestService
 {
     protected $repository;
+    protected $userRepository;
 
-    public function __construct(VolunteerRequestRepository $repository)
+    public function __construct(VolunteerRequestRepository $repository,userRepository $userRepository)
     {
         $this->repository = $repository;
+        $this->userRepository = $userRepository;
+
     }
 
     /**
@@ -60,10 +65,7 @@ class VolunteerRequestService
     public function processStatus($id, $status)
     {
         return DB::transaction(function () use ($id, $status) {
-            // 1. تحديث حالة الطلب
             $joinRequest = $this->repository->updateStatus($id, $status);
-
-            // 2. إذا تمت الموافقة، نقوم بإنشاء سجل في جدول المتطوعين
             if ($status === 'approved') {
                 $this->repository->createVolunteerProfile([
                     'user_id'               => $joinRequest->user_id,
@@ -74,10 +76,10 @@ class VolunteerRequestService
                     'preferred_sector'      => $joinRequest->preferred_sector,
                     'preferred_field'       => $joinRequest->preferred_field,
                     'weekly_hours_capacity' => $joinRequest->weekly_hours_capacity,
-                    // ملاحظة: هنا سيتم توليد الـ QR Code لاحقاً داخل الـ Model أو الـ Repository
                 ]);
             }
-
+$user=$this->userRepository->getById($joinRequest->user_id);
+            $user->assignRole('Volunteer');
             return $joinRequest;
         });
     }

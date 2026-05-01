@@ -41,7 +41,7 @@ class UserService
         $code = $this->generateVerificationCode();
         $this->emailRepository->deleteByEmail($request->email);
         $verification = $this->emailRepository->create($request->email, $code);
-        Mail::to($user->email)->send(new EmailVerificationMail($code));
+     //   Mail::to($user->email)->send(new EmailVerificationMail($code));
         return [
             'user' => $user,
             'verification' => $verification,
