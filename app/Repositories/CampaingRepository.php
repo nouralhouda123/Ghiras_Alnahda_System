@@ -34,6 +34,10 @@ class CampaingRepository
         return Campaign_kpi::create($data);
 
     }
+    public function findById($id)
+    {
+        return Campaign::where('id',$id)->exists();
+    }
 
     public function index()
     {
@@ -63,5 +67,11 @@ class CampaingRepository
             $query->where('type','like','%'.$request->type)  ;
         }
         return $query->get() ;
+    }
+
+    public function getById($id)
+    {
+        return Campaign::find($id);
+
     }
 }

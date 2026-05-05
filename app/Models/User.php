@@ -65,4 +65,17 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Specialization::class, 'instructor_specializations');
     }
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'volunteer_id');
+    }
+    public function receivedPoints()
+    {
+        return $this->hasMany(PointTransaction::class, 'volunteer_id');
+    }
+
+    public function givenPoints()
+    {
+        return $this->hasMany(PointTransaction::class, 'awarded_by');
+    }
 }

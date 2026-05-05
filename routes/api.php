@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\courseController;
 use App\Http\Controllers\UserController;
@@ -59,8 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('searchUser', [UserController::class, 'searchUser']);
     Route::post('searchUserByName', [UserController::class, 'searchUser']);
     Route::post('searchUserByRole', [UserController::class, 'searchUser']);
-
-
+    Route::get('ShowAllRoles', [UserController::class, 'ShowAllRoles']);
+//فسم الحضور
+    Route::post('leaderCheckIn/{id}', [AttendanceController::class, 'leaderCheckIn'])->middleware('can:record.attendance');
+    Route::post('leaderCheckOut/{id}', [AttendanceController::class, 'leaderCheckOut']);
 
 
 

@@ -31,6 +31,10 @@ return new class extends Migration
                 'medium',
                 'high'
             ])->default('medium');
+            $table->foreignId('leader_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->decimal('latitude', 10, 7)->nullable();

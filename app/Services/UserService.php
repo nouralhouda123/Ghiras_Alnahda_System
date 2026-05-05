@@ -42,7 +42,7 @@ class UserService
         $code = $this->generateVerificationCode();
         $this->emailRepository->deleteByEmail($request->email);
         $verification = $this->emailRepository->create($request->email, $code);
-     //   Mail::to($user->email)->send(new EmailVerificationMail($code));
+      Mail::to($user->email)->send(new EmailVerificationMail($code));
         return [
             'user' => $user,
             'verification' => $verification,
@@ -219,6 +219,17 @@ class UserService
             'message' => 'User retrieved successfully',
             'code' => 200
         ];
+    }
+
+    public function ShowAllRoles()
+    {
+        $roles=$this->userRepository->ShowAllRoles();
+        return [
+            'user' =>$roles,
+            'message' => 'Roles retrieved successfully',
+            'code' => 200
+        ];
+
     }
 
 }

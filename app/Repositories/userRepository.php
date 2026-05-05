@@ -6,6 +6,7 @@ use App\Models\Campaign;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class userRepository
 {
@@ -94,6 +95,12 @@ class userRepository
             ->get();
     }
 
+    public function ShowAllRoles()
+    {
+        return Role::all();
+
+
+}
 
 
 }

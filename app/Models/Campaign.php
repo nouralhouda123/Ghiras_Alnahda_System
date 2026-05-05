@@ -56,4 +56,8 @@ class Campaign extends Model
 
         return [];
     }
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }
