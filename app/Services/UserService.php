@@ -4,6 +4,7 @@ use App\Http\Requests\addUserRequest;
 use App\Http\Requests\campaign_kpiRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\searchUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserResource;
@@ -167,14 +168,19 @@ class UserService
             'code' => 200
         ];
     }
-    public function searchUser($request){
+    public function searchUser( searchUserRequest $request){
             $user = $this->userRepository->searchUser($request);
         return [
-            'user' => UserResource::collection($user),
+            'users' => UserResource::collection($user),
+            'meta' => [
+                'current_page' => $user->currentPage(),
+                'last_page' => $user->lastPage(),
+                'per_page' => $user->perPage(),
+                'total' => $user->total(),
+            ],
             'message' => 'Users retrieved successfully',
             'code' => 200
-        ];
-    }
+        ];    }
     public function UpdateEmployee( $request,$id)
     {
         $user = $this->userRepository->getById($id);

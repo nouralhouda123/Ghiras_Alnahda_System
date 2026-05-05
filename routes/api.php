@@ -57,7 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('UpdateUser/{id}', [UserController::class, 'UpdateEmployee']);
     Route::post('ShowdetailUser/{id}', [UserController::class, 'ShowdetailEmployee']);
     Route::post('searchUser', [UserController::class, 'searchUser']);
-
+    Route::post('searchUserByName', [UserController::class, 'searchUser']);
+    Route::post('searchUserByRole', [UserController::class, 'searchUser']);
 
 
 

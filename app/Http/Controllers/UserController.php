@@ -5,6 +5,7 @@ use App\Helpers\ResponseHelper;
 use App\Http\Requests\addUserRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\searchUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
@@ -101,11 +102,14 @@ class UserController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
 //بحث عن موظف حملة او مدير متطوعين  حسب دوره او الاسم
-    public function searchUser(Request $request){
+    public function searchUser(searchUserRequest $request){
         $data=$this->userService->searchUser($request);
         if ($data['code'] === 200) {
-            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
+            return ResponseHelper::Success([
+                'data' => $data['users'],
+                'meta' => $data['meta']
+            ], $data['message'], $data['code']);        }
+        else {
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
 

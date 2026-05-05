@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Campaign;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 
 class userRepository
@@ -55,22 +56,26 @@ class userRepository
         return User::all();
     }
 
+
     public function searchUser($request)
     {
-        $query = User::query();
-
-        $query->when($request->filled('role'), function ($q) use ($request) {
-            $q->whereHas('roles', function ($r) use ($request) {
-                $r->where('name', $request->role);
-            });
+        $data = $request->only(['name', 'role', 'page']);
+        $cacheKey = 'users_search_' . md5(json_encode($data));
+        return Cache::remember($cacheKey, 60, function () use ($request) {
+            $query = User::query()
+                ->with('roles')
+                ->select('id', 'name');
+            if ($request->filled('name')) {
+                $query->where('name', 'like', $request->name . '%');
+            }
+            if ($request->filled('role')) {
+                $query->whereHas('roles', function ($q) use ($request) {
+                    $q->where('name', $request->role);
+                });
+            }
+            return $query->paginate(10);
         });
-
-        $query->when($request->filled('name'), function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->name . '%');
-        });
-
-        return $query->get();
-    }    public function UpdateEmployee($data, $id)
+    }         public function UpdateEmployee($data, $id)
     {
         $user=User::query()->find($id);
          $user->update([
