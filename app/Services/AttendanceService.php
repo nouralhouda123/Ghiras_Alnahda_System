@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Http\Requests\AttendanceRequest;
+use App\Http\Resources\AttendanceResource;
+use App\Http\Resources\PointTransactionResources;
 use App\Repositories\AttendanceRepository;
 use App\Repositories\CampaingRepository;
 use App\Repositories\PointTransactionRepository;
@@ -155,25 +157,50 @@ class AttendanceService
 
     public function index($user)
     {
-        $attendances=$user->attendances;
+        $attendances = $user->attendances()
+            ->with(['volunteer', 'campaign'])
+            ->get();
+
+        if ($attendances->isEmpty()) {
+            return [
+                'user' => [],
+                'message' => 'No attendance records found',
+                'code' => 404
+            ];
+        }
+
         return [
-            'user' =>$attendances,
+            'user' => AttendanceResource::collection($attendances),
             'message' => 'success',
             'code' => 200
         ];
     }
     public function show($campanig_id)
     {
-        $campanig=$this->CampaingRepository->getById($campanig_id);
+        $campanig = $this->CampaingRepository->getById($campanig_id);
+
         if (!$campanig) {
-            return ['message' => 'Campanig not found', 'code' => 404];
+            return [
+                'user' => '',
+                'message' => 'Campaign not found',
+                'code' => 200
+            ];
         }
-        $Campanig=$campanig->attendances;
+        $attendances = $campanig->attendances()
+            ->with(['volunteer', 'campaign'])
+            ->get();
+
+        if ($attendances->isEmpty()) {
+            return [
+                'user' => [],
+                'message' => 'No attendance records for this campaign',
+                'code' => 200
+            ];
+        }
+
         return [
-            'user' =>$Campanig,
+            'user' => AttendanceResource::collection($attendances),
             'message' => 'success',
             'code' => 200
         ];
-    }
-}
-
+    }}

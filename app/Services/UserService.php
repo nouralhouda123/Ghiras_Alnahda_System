@@ -11,6 +11,7 @@ use App\Http\Resources\UserResource;
 use App\Mail\EmailVerificationMail;
 use App\Models\User;
 use App\Repositories\EmailVerficationRepository;
+use App\Repositories\RoleRepository;
 use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -18,6 +19,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use function Symfony\Component\Routing\Loader\load;
 class UserService
@@ -116,22 +118,31 @@ class UserService
         }
         return (['user' => $user, 'message' => $message, 'code' => $code]);
     }
-    public function createUser(addUserRequest $request)
+    public function createUser(array $data)
     {
-        return DB::transaction(function () use ($request) {
-            $user = $this->userRepository->create_User($request->toArray());
-            $user->assignRole($request->role);
+        return DB::transaction(function () use ($data) {
+
+            $user = $this->userRepository->create_User($data);
+
+            $user->assignRole($data['role']);
+
             $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
-            $user->givePermissionTo($permissions);
-            $user = User::with('roles.permissions', 'permissions')->find($user->id);
-            $user = User::query()->find($user->id);
-            $user = $this->appendRolesAndPermission($user);
+
+            if (!empty($permissions)) {
+                $user->givePermissionTo($permissions);
+            }
+
+            $user = $this->appendRolesAndPermission(
+                User::with('roles.permissions', 'permissions')->find($user->id)
+            );
+
             return [
                 'user' => $user,
                 'message' => 'Success',
                 'code' => 200
-            ];});}
-    private function appendRolesAndPermission($user)
+            ];
+        });
+    }    private function appendRolesAndPermission($user)
     {
         $roles = [];
         foreach ($user->roles as $role) {
@@ -199,7 +210,6 @@ class UserService
             'code' => 200
         ];
     }
-    //عرض تفاصيل موظف
     public function ShowdetailEmployee($id)
     {
         $user = $this->userRepository->getById($id);
@@ -231,5 +241,6 @@ class UserService
         ];
 
     }
+
 
 }

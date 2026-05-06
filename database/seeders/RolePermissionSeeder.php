@@ -37,6 +37,10 @@ class RolePermissionSeeder extends Seeder
             'view.statistics.details',
             'view.growth.metrics',
 'add.course',
+            'create Campaign Employee',
+            'create Volunteer Manager',
+            'create Evaluation Officer',
+
             'view.campaign',
             'view.campaign.details',
             'create.campaign',
@@ -94,6 +98,9 @@ class RolePermissionSeeder extends Seeder
         $superAdmin->givePermissionTo(Permission::all());
 
         $campaignManager->givePermissionTo([
+            'create Campaign Employee',
+            'create Volunteer Manager',
+
             'add.course',
             'view.campaign',
             'add.user',
@@ -137,6 +144,7 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $evaluationManager->givePermissionTo([
+            'create Evaluation Officer',
             'view.evaluation.request',
             'show.Employee',
             'Update.Employee',

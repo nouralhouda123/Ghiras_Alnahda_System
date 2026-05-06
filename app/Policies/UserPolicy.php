@@ -8,27 +8,12 @@ use App\Models\User;
 
 class UserPolicy
 {
-    public function create(User $authenticatedUser, string $role, int $departmentId): bool
+    public function create(User $user, string $role): bool
     {
-        if ($authenticatedUser->hasRole('Super Admin')) {
+        if ($user->hasRole('Super Admin')) {
             return true;
         }
-
-        if ($authenticatedUser->hasRole('Campaign Manager')) {
-            $allowedRoles = ['Campaign Employee', 'Volunteer Manager'];
-
-            return in_array($role, $allowedRoles);
-               // && $departmentId === $authenticatedUser->department_id;
-        }
-
-        if ($authenticatedUser->hasRole('Evaluation Manager')) {
-            $allowedRoles = ['Evaluation Officer'];
-
-            return in_array($role, $allowedRoles)
-                && $departmentId === $authenticatedUser->department_id;
-        }
-
-        return false;
+        return $user->can("create $role");
     }
     public function update(User $authUser, User $user): bool
     {
@@ -37,18 +22,14 @@ class UserPolicy
         }
 
         if ($authUser->hasRole('Campaign Manager')) {
-
-            return in_array(
-                    $user->getRoleNames()->first(),
-                    ['Campaign Employee', 'Volunteer Manager']
-                ) ;
-                //&& $authUser->department_id == $user->department_id;
+            return $user->hasAnyRole([
+                'Campaign Employee',
+                'Volunteer Manager'
+            ]);
         }
 
         if ($authUser->hasRole('Evaluation Manager')) {
-
-            return $user->getRoleNames()->first() === 'Evaluation Officer';
-             //   && $authUser->department_id == $user->department_id;
+            return $user->hasRole('Evaluation Officer');
         }
 
         return false;
@@ -60,20 +41,15 @@ class UserPolicy
         }
 
         if ($authUser->hasRole('Campaign Manager')) {
-
-            return in_array(
-                $user->getRoleNames()->first(),
-                ['Campaign Employee', 'Volunteer Manager']
-            ) ;
-            //&& $authUser->department_id == $user->department_id;
+            return $user->hasAnyRole([
+                'Campaign Employee',
+                'Volunteer Manager'
+            ]);
         }
 
         if ($authUser->hasRole('Evaluation Manager')) {
-
-            return $user->getRoleNames()->first() === 'Evaluation Officer';
-            //   && $authUser->department_id == $user->department_id;
+            return $user->hasRole('Evaluation Officer');
         }
 
         return false;
-    }
-}
+    }    }

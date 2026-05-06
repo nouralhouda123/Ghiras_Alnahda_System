@@ -3,29 +3,37 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
+use App\Http\Requests\DepartmentRequest;
 use App\Models\Department;
+use App\Services\CampaignService;
+use App\Services\DepartmentService;
 use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
-    //اضافة قسم
-    public function store(Request $request) {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-        $department = Department::create($request->all());
-        return ResponseHelper::Success($department, 'the department created successfully', 201);
+    private DepartmentService $departmentService;
+
+    public function __construct(DepartmentService $departmentService)
+    {
+        $this->departmentService = $departmentService;
     }
-    //عرض الاقسام
+    public function store(DepartmentRequest $request)
+    {
+        $data = $this->departmentService->store($request->validated());
+
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['data'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['data'], $data['message'], $data['code']);
+        }
+    }
     public function index()
     {
-        $departments = Department::all();
+        $data = $this->departmentService->index();
 
-        return ResponseHelper::Success(
-            $departments,
-            'Departments retrieved successfully',
-            200
-        );
-    }
-}
+        if ($data['code'] === 201) {
+            return ResponseHelper::Success($data['data'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['data'], $data['message'], $data['code']);
+        }
+    }}

@@ -15,7 +15,7 @@ class PointTransactionController
         $this->pointTransactionService = $pointTransactionService;
     }
     //عرض سجل نقاط مستخدم
-    public function index()
+    public function showPointForUser()
     {
         $data=$this->pointTransactionService->index(Auth::user());
         if($data['code']===200){
@@ -25,7 +25,7 @@ class PointTransactionController
         }
     }
 //عرض سجل نقاط متطوع ما
-    public function show($user_id)
+    public function showPointForVolunteer($user_id)
     {
         $data=$this->pointTransactionService->show($user_id);
         if($data['code']===200){

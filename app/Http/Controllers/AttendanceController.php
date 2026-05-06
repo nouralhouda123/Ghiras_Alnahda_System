@@ -37,7 +37,7 @@ class AttendanceController
         }
     }
 //عرض حضور مستخدم
-    public function index()
+    public function volunteerAttendances()
     {
         $data=$this->attendanceService->index(Auth::user());
         if($data['code']===200){
@@ -47,7 +47,7 @@ class AttendanceController
         }
     }
 //عرض حضور حملة
-    public function show($Campanig_id)
+    public function campaignAttendances($Campanig_id)
     {
         $data=$this->attendanceService->show($Campanig_id);
         if($data['code']===200){

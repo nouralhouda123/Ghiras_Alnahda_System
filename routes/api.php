@@ -3,6 +3,8 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\courseController;
+use App\Http\Controllers\PointTransactionController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DepartmentController;
@@ -24,36 +26,36 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('create_Campanig', [CampaignController::class, 'create']);
-        //->middleware('can:create.campaign');
-    Route::post('logout', [UserController::class, 'logout']) ;
+    //قسم الحملة
+    Route::post('create_Campanig', [CampaignController::class, 'create'])
+        ->middleware('can:create.campaign');
     Route::get('show_Campanig', [CampaignController::class, 'show']);
     Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
-    Route::get('profile', [UserController::class, 'profile']);
-    Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
+    Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);
+    Route::post('assignCampaignLeader/{campaignId}/{userId}', [CampaignController::class,
+        'assignCampaignLeader']);
+    Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig']);
+    Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee']);
+    Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee']);
+//
+    Route::post('logout', [UserController::class, 'logout']) ;
+    //قسم بروفايل
     Route::get('profile', [UserController::class, 'profile']);
     Route::post('profileupdate', [UserController::class, 'updateProfile']);
-    Route::get('card', [UserController::class, 'cadr']);
+    Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
+    //ادارة الاقسام
     Route::post('storeDepartment', [DepartmentController::class, 'store']);
     Route::get('showAllDepartment', [DepartmentController::class, 'index']);
-    //قسم الادارة
     Route::post('addUser', [UserController::class, 'addUser']);
-        //->middleware('can:add.user');
-    Route::get('getRoleNames', [UserController::class, 'getRoleNames']);
-    Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig']);
-       // ->middleware('can:show.Employee');
-        Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee']);
-       //     ->middleware('can:Update.Employee');
-    Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);
-        Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee']);
-           // ->middleware('can:Showdetail.Employee');
+    //ادارة الادوار
+    Route::get('getRoleNames', [RoleController::class, 'getRoleNames']);
 //قسم الكورسات
     Route::post('addCourse', [\App\Http\Controllers\courseController::class, 'create'])
         ->middleware('can:add.course');
     Route::get('indexAllCourses', [\App\Http\Controllers\courseController::class, 'index']);
     Route::post('indexDetailCourse/{id}', [\App\Http\Controllers\courseController::class, 'show']);
     Route::post('courses/enroll/{id}', [CourseController::class, 'store']);
-//قسم المستخدمين
+//قسم  ادارة المستخدمين
     Route::get('showAllUsers', [UserController::class, 'showAllEmployeeCampanig']);
     Route::post('UpdateUser/{id}', [UserController::class, 'UpdateEmployee']);
     Route::post('ShowdetailUser/{id}', [UserController::class, 'ShowdetailEmployee']);
@@ -61,12 +63,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('searchUserByName', [UserController::class, 'searchUser']);
     Route::post('searchUserByRole', [UserController::class, 'searchUser']);
     Route::get('ShowAllRoles', [UserController::class, 'ShowAllRoles']);
+    Route::get('showPointForUser', [PointTransactionController::class, 'showPointForUser']);
+    Route::post('showPointForVolunteer/{id}', [PointTransactionController::class, 'showPointForVolunteer']);
 //فسم الحضور
     Route::post('leaderCheckIn/{id}', [AttendanceController::class, 'leaderCheckIn'])->middleware('can:record.attendance');
     Route::post('leaderCheckOut/{id}', [AttendanceController::class, 'leaderCheckOut']);
-
-
-
+    Route::post('campaignAttendances/{id}', [AttendanceController::class, 'campaignAttendances']);
+    Route::get('volunteerAttendances', [AttendanceController::class, 'volunteerAttendances']);
 
 
 
@@ -74,13 +77,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // --- راوتات طلبات التطوع ---
-
     // 1. تقديم طلب جديد (للمستخدم)
     Route::post('volunteerjoin', [VolunteerRequestController::class, 'store']);
-
     // 2. عرض جميع الطلبات المعلقة (للأدمن أو من لديه صلاحية)
     Route::get('showAllVolunteerRequests', [VolunteerRequestController::class, 'index']);
-
     // 3. عرض تفاصيل طلب واحد
     Route::get('showVolunteerRequest/{id}', [VolunteerRequestController::class, 'show']);
     // 4. قبول أو رفض الطلب

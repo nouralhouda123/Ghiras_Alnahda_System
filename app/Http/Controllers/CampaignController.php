@@ -77,26 +77,19 @@ class CampaignController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function assignCampaignLeader($campaignId, $userId)
     {
-        //
+        $data=$this->campaignService->assignTeamLeader($campaignId, $userId);
+        if($data['code']===200){
+            return ResponseHelper::Success($data['data'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['data'], $data['message'], $data['code']);
+        }
     }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         //
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         //

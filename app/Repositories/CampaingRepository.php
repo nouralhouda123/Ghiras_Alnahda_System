@@ -68,10 +68,12 @@ class CampaingRepository
         }
         return $query->get() ;
     }
-
     public function getById($id)
     {
         return Campaign::find($id);
-
+    }
+    public function update(array $array,$campaign)
+    {
+        $campaign->update($array);
     }
 }

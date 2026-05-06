@@ -8,15 +8,17 @@ use App\Http\Resources\CampaignDetailsResource;
 use App\Http\Resources\CampaignResource;
 use App\Http\Resources\UserResource;
 use App\Repositories\CampaingRepository;
+use App\Repositories\userRepository;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CampaignService
 {
-    public function __construct(CampaingRepository $CampaingRepository)
+    public function __construct(CampaingRepository $CampaingRepository,userRepository $userRepository)
     {
         $this->CampaingRepository = $CampaingRepository;
+        $this->userRepository=$userRepository;
     }
     public function create(CampaingRequest $request)
     {
@@ -119,4 +121,53 @@ class CampaignService
                 'code' => 200
             ];
         }
-}
+
+    public function assignTeamLeader($campaignId, $userId)
+    {
+        $campaign = $this->CampaingRepository->getById($campaignId);
+        if (!$campaign) {
+            return [
+                'data' => null,
+                'message' => 'Campaign not found',
+                'code' => 404
+            ];
+        }
+
+        $user = $this->userRepository->getById($userId);
+        if (!$user) {
+            return [
+                'data' => null,
+                'message' => 'User not found',
+                'code' => 404
+            ];
+        }
+
+        if (!$user->hasRole('Volunteer')) {
+            return [
+                'data' => null,
+                'message' => 'User must be a volunteer',
+                'code' => 403
+            ];
+        }
+
+        if ($campaign->leader_id) {
+            return [
+                'data' => null,
+                'message' => 'Campaign already has a leader',
+                'code' => 400
+            ];
+        }
+
+        $this->CampaingRepository->update([
+            'leader_id' => $userId
+        ], $campaign);
+
+        return [
+            'data' => [
+                'campaign_id' => $campaignId,
+                'leader_id' => $userId
+            ],
+            'message' => 'Leader assigned successfully',
+            'code' => 200
+        ];
+    }}
