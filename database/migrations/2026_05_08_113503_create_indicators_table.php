@@ -11,27 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('campaign_kpis', function (Blueprint $table) {
+        Schema::create('indicators', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('campaign_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
             $table->string('name');
-
-
-            $table->decimal('target_value', 10, 2);
-
-            $table->string('unit');
-
-
+            $table->string('data_source');
+            $table->string('aggregation');
+            $table->string('field')->nullable();
+            $table->json('filters')->nullable();
             $table->timestamps();
-        });}    /**
+        });    }
+
+    /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('campaign_kpis');
+        Schema::dropIfExists('indicators');
     }
 };
