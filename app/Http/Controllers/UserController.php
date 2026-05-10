@@ -130,6 +130,16 @@ class UserController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
 
+//عرض متطوعين
+    public function getVoulnteer( )
+    {
+        $data=$this->userService->getVoulnteer();
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
+
 
 
 

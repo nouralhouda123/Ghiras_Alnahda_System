@@ -9,6 +9,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VolunteerRequestController;
+use App\Services\AIUnderstandingService;
+use App\Services\KPIBrainService;
+use App\Services\KPIEngineService;
+use App\Services\KPIExtractorService;
+use App\Services\KpiUnderstandingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -66,11 +71,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('showPointForUser', [PointTransactionController::class, 'showPointForUser']);
     Route::post('showPointForVolunteer/{id}', [PointTransactionController::class, 'showPointForVolunteer']);
 //فسم الحضور
-    Route::post('leaderCheckIn/{id}', [AttendanceController::class, 'leaderCheckIn'])->middleware('can:record.attendance');
+    Route::post('leaderCheckIn/{id}', [AttendanceController::class, 'leaderCheckIn']);
+      //ju]تعديل   ->middleware('can:record.attendance');
     Route::post('leaderCheckOut/{id}', [AttendanceController::class, 'leaderCheckOut']);
     Route::post('campaignAttendances/{id}', [AttendanceController::class, 'campaignAttendances']);
     Route::get('volunteerAttendances', [AttendanceController::class, 'volunteerAttendances']);
-
+    Route::get('getVoulnteer', [UserController::class, 'getVoulnteer']);
 
 
 
@@ -86,4 +92,19 @@ Route::middleware('auth:sanctum')->group(function () {
     // 4. قبول أو رفض الطلب
     Route::post('updateVolunteerRequestStatus/{id}', [VolunteerRequestController::class, 'updateStatus']);
 
-});
+
+
+
+
+
+
+
+
+
+
+    Route::get('/kpi-engine', function (KPIEngineService $engine) {
+
+        return response()->json(
+            $engine->analyze("زيادة عدد المتطوعين إلى 5000 خلال 3 أشهر")
+        );
+    });          });

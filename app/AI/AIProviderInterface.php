@@ -1,10 +1,8 @@
 <?php
 
-
 namespace App\AI;
 
-
-class AIProviderInterface
+interface AIProviderInterface
 {
-
+    public function analyze(string $prompt): array;
 }

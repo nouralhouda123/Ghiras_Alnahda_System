@@ -94,6 +94,14 @@ class userRepository
             ->where('department_id', $departmentId)
             ->get();
     }
+//عرض متطوعين
+    public function getVoulnteer( )
+    {
+        return User::query()
+            ->role('Volunteer')
+            ->get();
+    }
+
 
     public function ShowAllRoles()
     {

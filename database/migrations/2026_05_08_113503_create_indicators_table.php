@@ -12,16 +12,32 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('indicators', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('data_source');
-            $table->string('aggregation');
-            $table->string('field')->nullable();
-            $table->json('filters')->nullable();
-            $table->timestamps();
-        });    }
 
-    /**
+            $table->id();
+
+            // اسم المؤشر
+            $table->string('name');
+
+            // المجال
+            $table->string('domain');
+
+            // اسم الجدول
+            $table->string('data_source');
+
+            // نوع العملية
+            $table->string('aggregation');
+
+            // الحقل المستخدم
+            $table->string('field')->nullable();
+
+            // شروط إضافية
+            $table->json('filters')->nullable();
+
+            // وصف
+            $table->text('description')->nullable();
+
+            $table->timestamps();
+        });}    /**
      * Reverse the migrations.
      */
     public function down(): void

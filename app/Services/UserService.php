@@ -242,5 +242,17 @@ class UserService
 
     }
 
+    public function getVoulnteer()
+    {
+        $roles=$this->userRepository->getVoulnteer();
+        return [
+            'user' =>$roles,
+            'message' => 'Voulnteer retrieved successfully',
+            'code' => 200
+        ];
+
+
+    }
+
 
 }
