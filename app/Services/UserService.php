@@ -8,6 +8,8 @@ use App\Http\Requests\searchUserRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\VolunteerDetailsResource;
+use App\Http\Resources\VolunteerListResource;
 use App\Mail\EmailVerificationMail;
 use App\Models\User;
 use App\Repositories\EmailVerficationRepository;
@@ -44,7 +46,7 @@ class UserService
         $code = $this->generateVerificationCode();
         $this->emailRepository->deleteByEmail($request->email);
         $verification = $this->emailRepository->create($request->email, $code);
-      Mail::to($user->email)->send(new EmailVerificationMail($code));
+    Mail::to($user->email)->send(new EmailVerificationMail($code));
         return [
             'user' => $user,
             'verification' => $verification,
@@ -241,16 +243,41 @@ class UserService
         ];
 
     }
-
     public function getVoulnteer()
     {
-        $roles=$this->userRepository->getVoulnteer();
+        $Volunteer=$this->userRepository->getVoulnteer();
         return [
-            'user' =>$roles,
-            'message' => 'Voulnteer retrieved successfully',
+            'user' => VolunteerListResource::collection($Volunteer),
+            'message' => 'Volunteer retrieved successfully',
             'code' => 200
         ];
+    }
+    public function showVolunteer($id)
+    {
+        $user = $this->userRepository->getById($id);
+        if (!$user) {
+            return [
+                'user' => null,
+                'message' => 'Volunteer not found',
+                'code' => 404
+            ];
+        }
+        return [
+            'user' =>   new VolunteerDetailsResource($user),
+            'message' => 'Volunteer retrieved successfully',
+            'code' => 200
+        ];
+    }
 
+    public function profile()
+    {
+        $user_id=Auth::user()->id;
+        $user = $this->userRepository->getById($user_id);
+        return [
+            'user' =>   new UserResource($user),
+            'message' => 'Profile retrieved successfully',
+            'code' => 200
+        ];
 
     }
 

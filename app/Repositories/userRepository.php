@@ -101,8 +101,6 @@ class userRepository
             ->role('Volunteer')
             ->get();
     }
-
-
     public function ShowAllRoles()
     {
         return Role::all();

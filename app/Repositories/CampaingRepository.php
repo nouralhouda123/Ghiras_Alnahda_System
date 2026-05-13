@@ -15,6 +15,7 @@ class CampaingRepository
         return Campaign::create([
             'title' => $data['title'],
             'latitude' =>$data['latitude'],
+            'location' =>$data['location'],
             'radius' => $data['radius'],
             'required_volunteers' => $data['required_volunteers'],
             'target_amount' => $data['target_amount'],

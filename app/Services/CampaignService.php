@@ -75,11 +75,11 @@ class CampaignService
             ]);
 
             return [
-                'message' => 'error',
-                'error' => $e->getMessage(),
+                'user' => null,
+                'message' => $e->getMessage(),
+               // 'error' => $e->getMessage(),
                 'code' => 500
-            ];
-        }
+            ];        }
     }
     public function show()
     {

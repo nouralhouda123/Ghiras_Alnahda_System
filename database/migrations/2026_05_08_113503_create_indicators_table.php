@@ -18,29 +18,41 @@ return new class extends Migration
             // اسم المؤشر
             $table->string('name');
 
+            // شرح المؤشر
+            $table->text('description')->nullable();
+
             // المجال
             $table->string('domain');
 
-            // اسم الجدول
-            $table->string('data_source');
+            // نوع الحملة
+            $table->string('campaign_type')->nullable();
 
-            // نوع العملية
-            $table->string('aggregation');
+            // طريقة الحساب
+            $table->string('operation');
 
-            // الحقل المستخدم
-            $table->string('field')->nullable();
+            // الجدول المرتبط
+            $table->string('table_name');
 
-            // شروط إضافية
-            $table->json('filters')->nullable();
+            // العمود المستخدم
+            $table->string('column_name')->nullable();
 
-            // وصف
-            $table->text('description')->nullable();
+            // صيغة الحساب
+            $table->text('formula')->nullable();
+
+            // هل يحتاج survey؟
+            $table->boolean('needs_survey')->default(false);
+
+            // هل يمكن حسابه من DB؟
+            $table->boolean('is_computable')->default(true);
+            $table->decimal('base_weight', 5, 2)->default(1);
+            // مستوى الأهمية
+            $table->integer('priority')->default(1);
+
+            // tags للذكاء
+            $table->json('tags')->nullable();
 
             $table->timestamps();
-        });}    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+        });    }    public function down(): void
     {
         Schema::dropIfExists('indicators');
     }

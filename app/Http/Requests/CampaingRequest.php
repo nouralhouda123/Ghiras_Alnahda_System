@@ -14,15 +14,11 @@ class CampaingRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
             'title' => 'required|string|max:255',
+            'location' => 'required|string',
             'description' => 'required|string',
             'type' => 'required|in:relief,awareness,training,field,development,charity',
             'priority' => 'required|in:low,medium,high',

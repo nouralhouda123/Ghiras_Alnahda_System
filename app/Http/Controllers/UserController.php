@@ -28,6 +28,16 @@ class UserController extends Controller
     }
     public function profile()
     {
+        $data = $this->userService->profile();
+
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    public function profileي()
+    {
         $user = auth()->user();
         $imageUrl = $user->image ? asset('storage/' . $user->image) : null;
         $responseData = [
@@ -38,7 +48,13 @@ class UserController extends Controller
             'profile_image_url' => $imageUrl,
             'created_at' => $user->created_at,
         ];
-        return ResponseHelper::Success($responseData, 'Profile data retrieved successfully', 200);
+        $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
+        $user->givePermissionTo($permissions);
+        $user = User::with('roles.permissions', 'permissions')->find($user->id);
+        $user = $this->appendRolesAndPermission($user);
+
+        return ResponseHelper::Success(
+            $responseData, 'Profile data retrieved successfully', 200);
     }
 
     public function updateProfile(Request $request)
@@ -139,8 +155,15 @@ class UserController extends Controller
         } else {
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
-
-
+// عرض تفاصيل متطوع
+    public function showVolunteer($id)    {
+        $data=$this->userService->showVolunteer($id);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }}
+//عرض سجل نقاط متطوعين
 
 
 

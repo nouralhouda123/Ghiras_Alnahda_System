@@ -4,11 +4,12 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-
 class CampaignDetailsResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $user = auth()->user();
+        $hasRole = auth()->user()?->getRoleNames()->isNotEmpty();
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -16,28 +17,23 @@ class CampaignDetailsResource extends JsonResource
             'type' => $this->type,
             'status' => $this->status,
             'priority' => $this->priority,
-
+            'leader_id' => $this->leader_id,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-
             'location' => [
-                'latitude' => $this->latitude,
-                'longitude' => $this->longitude,
-                'radius' => $this->radius,
+                'latitude' => $this->when($hasRole, $this->latitude),
+                'longitude' => $this->when($hasRole, $this->longitude),
+                'radius' => $this->when($hasRole, $this->radius),
             ],
-
-
             'volunteers' => [
                 'required' => $this->required_volunteers,
                 'current' => $this->current_volunteers,
                 'remaining' => $this->required_volunteers - $this->current_volunteers,
             ],
-
             'donations' => [
                 'target' => $this->target_amount,
                 'current' => $this->current_amount,
             ],
-
             'image' => $this->image,
             'video' => $this->video,
 
@@ -64,5 +60,4 @@ class CampaignDetailsResource extends JsonResource
                     : 0,
             ],
         ];
-    }
-}
+    }}

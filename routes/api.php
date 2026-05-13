@@ -9,7 +9,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VolunteerRequestController;
+use App\Services\AIService;
 use App\Services\AIUnderstandingService;
+use App\Services\KPIBrain;
 use App\Services\KPIBrainService;
 use App\Services\KPIEngineService;
 use App\Services\KPIExtractorService;
@@ -76,11 +78,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('leaderCheckOut/{id}', [AttendanceController::class, 'leaderCheckOut']);
     Route::post('campaignAttendances/{id}', [AttendanceController::class, 'campaignAttendances']);
     Route::get('volunteerAttendances', [AttendanceController::class, 'volunteerAttendances']);
+    //قسم المتطوعين
     Route::get('getVoulnteer', [UserController::class, 'getVoulnteer']);
+    Route::post('showVolunteer/{id}', [UserController::class, 'showVolunteer']);
 
 
 
+    Route::get('brain', function (KPIBrain $brain) {
 
+        return $brain->analyze(
+            request('text')
+        );
+
+    });
 
     // --- راوتات طلبات التطوع ---
     // 1. تقديم طلب جديد (للمستخدم)

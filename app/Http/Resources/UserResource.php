@@ -12,9 +12,17 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'phone' => $this->phone,
             'email' => $this->email,
             'status' => $this->status,
-            'role' => $this->getRoleNames(),
+            'Member_ship' => $this->getRoleNames()->isNotEmpty()
+                ? $this->getRoleNames()
+                : ['user'],
+            'image' => $this?->image
+                ? asset('storage/' . $this->image)
+                : null,
+
+
         ];
     }
 }
