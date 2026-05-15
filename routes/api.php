@@ -85,5 +85,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('showVolunteerRequest/{id}', [VolunteerRequestController::class, 'show']);
     // 4. قبول أو رفض الطلب
     Route::post('updateVolunteerRequestStatus/{id}', [VolunteerRequestController::class, 'updateStatus']);
+    // رابط عرض البطاقة للمتطوع
+    Route::get('/my-card', [VolunteerRequestController::class, 'getMyIDCard']);
+    Route::get('top-volunteers', [UserController::class, 'getTopVolunteers']);
 
 });

@@ -62,4 +62,57 @@ class VolunteerRequestController extends Controller
             'data' => $result
         ]);
     }
+
+
+
+    ////////////////
+
+    public function getMyIDCard()
+    {
+        // تحميل البروفايل المرتبط بالمستخدم الحالي
+        $user = auth()->user()->load('volunteerProfile');
+        $profile = $user->volunteerProfile;
+
+        // 1. التحقق من وجود البروفايل (أمان إضافي)
+        if (!$profile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Volunteer profile not found for this account.'
+            ], 404);
+        }
+
+        // 2. التحقق من حالة الحظر (is_active)
+        if (!$profile->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This ID card is currently disabled. Please contact administration.'
+            ], 403);
+        }
+
+        // 3. التحقق من تاريخ انتهاء الصلاحية
+        $isExpired = \Carbon\Carbon::parse($profile->card_expiry_date)->isPast();
+
+        if ($isExpired) {
+            return response()->json([
+                'success' => false,
+                'status' => 'Expired',
+                'message' => 'This ID card has expired and requires renewal.'
+            ], 403);
+        }
+
+        // 4. حالة النجاح
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'full_name'    => $user->name,
+                'id_number'    => $profile->volunteer_id_code,
+                'member_since' => $user->created_at->format('M Y'),
+                'expiry_date'  => $profile->card_expiry_date,
+                'qr_code_url'  => asset('storage/' . $profile->qr_code_path),
+                'status'       => 'Active'
+            ]
+        ]);
+    }
+
+
 }

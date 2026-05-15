@@ -6,7 +6,8 @@ use App\Models\User;
 use App\Repositories\userRepository;
 use App\Repositories\VolunteerRequestRepository;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class VolunteerRequestService
 {
     protected $repository;
@@ -62,13 +63,66 @@ class VolunteerRequestService
 
         return $request;
     }
+//
+//    public function processStatus($id, $status)
+//    {
+//        return DB::transaction(function () use ($id, $status) {
+//            $joinRequest = $this->repository->updateStatus($id, $status);
+//            if ($status === 'approved') {
+//                $this->repository->createVolunteerProfile([
+//                    'user_id'               => $joinRequest->user_id,
+//                    'age'                   => $joinRequest->age,
+//                    'gender'                => $joinRequest->gender,
+//                    'current_address'       => $joinRequest->current_address,
+//                    'cv_path'               => $joinRequest->cv_path,
+//                    'preferred_sector'      => $joinRequest->preferred_sector,
+//                    'preferred_field'       => $joinRequest->preferred_field,
+//                    'weekly_hours_capacity' => $joinRequest->weekly_hours_capacity,
+//                ]);
+//            }
+//$user=$this->userRepository->getById($joinRequest->user_id);
+//            $user->assignRole('Volunteer');
+//            return $joinRequest;
+//        });
+//    }
+
     public function processStatus($id, $status)
     {
         return DB::transaction(function () use ($id, $status) {
+            // تحديث حالة طلب الانضمام
             $joinRequest = $this->repository->updateStatus($id, $status);
+
             if ($status === 'approved') {
+                // 1. توليد كود فريد للمتطوع (مثل: GH-2026-0005)
+                // نستخدم سنة 2026 بناءً على تاريخ النظام الحالي
+                $idCode = 'GH-' . date('Y') . '-' . str_pad($joinRequest->user_id, 4, '0', STR_PAD_LEFT);
+
+                // 2. إعداد مسار حفظ الـ QR Code بصيغة SVG
+                $qrPath = 'qrcodes/' . $idCode . '.svg';
+                $fullPath = storage_path('app/public/' . $qrPath);
+
+                // التأكد من وجود المجلد وتوليده إذا لم يكن موجوداً
+                if (!file_exists(dirname($fullPath))) {
+                    mkdir(dirname($fullPath), 0755, true);
+                }
+
+                // 3. توليد المحتوى (رابط ديناميكي لفحص حضور المتطوع)
+                $qrContent = url("/api/attendance/check/" . $idCode);
+
+                // 4. توليد صورة الـ QR وحفظها في المسار المحدد
+                // استخدمنا errorCorrection('H') لضمان بقاء الكود قابلاً للمسح حتى لو تلف جزء من البطاقة
+                QrCode::format('svg')
+                    ->size(200)
+                    ->errorCorrection('H')
+                    ->generate($qrContent, $fullPath);
+
+                // 5. إنشاء بروفايل المتطوع في قاعدة البيانات
                 $this->repository->createVolunteerProfile([
                     'user_id'               => $joinRequest->user_id,
+                    'volunteer_id_code'     => $idCode,
+                    'qr_code_path'          => $qrPath,
+                    'card_expiry_date'      => now()->addYears(2), // صلاحية البطاقة سنتين
+                    'is_active'             => true,
                     'age'                   => $joinRequest->age,
                     'gender'                => $joinRequest->gender,
                     'current_address'       => $joinRequest->current_address,
@@ -77,10 +131,17 @@ class VolunteerRequestService
                     'preferred_field'       => $joinRequest->preferred_field,
                     'weekly_hours_capacity' => $joinRequest->weekly_hours_capacity,
                 ]);
+
+                // 6. تعيين دور (Role) متطوع للمستخدم في النظام
+                $user = $this->userRepository->getById($joinRequest->user_id);
+                if ($user) {
+                    $user->assignRole('Volunteer');
+                }
             }
-$user=$this->userRepository->getById($joinRequest->user_id);
-            $user->assignRole('Volunteer');
+
             return $joinRequest;
         });
     }
+
+
 }

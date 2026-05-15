@@ -130,12 +130,37 @@ class UserController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
 
+///////جلب افضل المتطوعين
+    public function getTopVolunteers()
+    {
+        try {
+            $topVolunteers = \App\Models\User::role('volunteer')
+                ->withSum('receivedPoints as total_points', 'points')
+                ->orderByDesc('total_points')
+                ->take(5)
+                ->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'total_points' => (int) ($user->total_points ?? 0),
+                        'status' => $user->status ?? 'unknown',
+                    ];
+                });
 
+            return response()->json([
+                'success' => true,
+                'data' => $topVolunteers
+            ], 200);
 
-
-
-
-
-
+        } catch (\Exception $e) {
+            // معالجة الخطأ وإرجاع رسالة مفهومة بدلاً من كراش للنظام
+            return response()->json([
+                'success' => false,
+                'message' => 'حدث خطأ أثناء جلب البيانات، يرجى المحاولة لاحقاً.',
+                'error_debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
 
 }

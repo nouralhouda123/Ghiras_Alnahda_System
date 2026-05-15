@@ -1,7 +1,7 @@
 <?php
+
 namespace App\Services;
-use App\Http\Requests\addUserRequest;
-use App\Http\Requests\campaign_kpiRequest;
+
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\searchUserRequest;
@@ -11,65 +11,77 @@ use App\Http\Resources\UserResource;
 use App\Mail\EmailVerificationMail;
 use App\Models\User;
 use App\Repositories\EmailVerficationRepository;
-use App\Repositories\RoleRepository;
 use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
-use function Symfony\Component\Routing\Loader\load;
+
 class UserService
 {
     use AuthorizesRequests;
+
     protected $userRepository;
     protected $emailRepository;
+
     public function __construct(userRepository $userRepository, EmailVerficationRepository $emailRepository)
     {
         $this->userRepository = $userRepository;
         $this->emailRepository = $emailRepository;
     }
+
     protected function generateVerificationCode(): string
     {
         return str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
     }
+
     public function register(UserRequest $request): array
     {
         return DB::transaction(function () use ($request) {
-
             $user = $this->userRepository->create($request->validated());
-        $code = $this->generateVerificationCode();
-        $this->emailRepository->deleteByEmail($request->email);
-        $verification = $this->emailRepository->create($request->email, $code);
-      Mail::to($user->email)->send(new EmailVerificationMail($code));
-        return [
-            'user' => $user,
-            'verification' => $verification,
-            'message' => 'Registration success. Please check your email to verify your account',
-            'code' => 201
-        ];
-    });}
+            $code = $this->generateVerificationCode();
+            $this->emailRepository->deleteByEmail($request->email);
+            $verification = $this->emailRepository->create($request->email, $code);
+            Mail::to($user->email)->send(new EmailVerificationMail($code));
 
-    public function Verify(EmailVerificationRequest $request){
+            return [
+                'user' => $user,
+                'verification' => $verification,
+                'message' => 'Registration success. Please check your email to verify your account',
+                'code' => 201
+            ];
+        });
+    }
+
+    /**
+     * تم تصحيح هذه الدالة لتعيد Array بدلاً من JsonResponse لمنع الخطأ في Controller
+     */
+    public function Verify(EmailVerificationRequest $request): array
+    {
         $emailverfication = $this->emailRepository->exists($request);
+
         if (!$emailverfication) {
-            return response()->json(['message' => 'Invalid or expired Verification code'], 400);
+            return [
+                'user' => null,
+                'message' => 'Invalid or expired Verification code',
+                'code' => 400
+            ];
         }
+
         $user = $this->userRepository->getByEmail($request->email);
         $user->email_verified_at = Carbon::now();
         $user->save();
         $emailverfication->delete();
-        return [
-            'user' => $emailverfication,
-            'message' => 'تم تاكيد حسابك بنجاح يمكنك الان تسجيل الدخول',
-            'code' => 201,
-        ];
 
+        return [
+            'user' => $user, // نرسل اليوزر بعد التحديث
+            'message' => 'تم تأكيد حسابك بنجاح يمكنك الان تسجيل الدخول',
+            'code' => 200,
+        ];
     }
-    public function login(LoginRequest $request)
+
+    public function login(LoginRequest $request): array
     {
         if (!Auth::attempt($request->only(['email', 'password']))) {
             return [
@@ -90,13 +102,9 @@ class UserService
         }
 
         $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
-
         $user->givePermissionTo($permissions);
-
         $user = User::with('roles.permissions', 'permissions')->find($user->id);
-
         $user = $this->appendRolesAndPermission($user);
-
         $user['token'] = $user->createToken('token')->plainTextToken;
 
         return [
@@ -104,28 +112,36 @@ class UserService
             'message' => 'Login successful',
             'code' => 200
         ];
-           }
-    public function logout()
+    }
+
+    /**
+     * تنبيه: تم تغيير $user->delete() لمنع حذف الحساب نهائياً عند تسجيل الخروج
+     */
+    public function logout(): array
     {
         $user = Auth::user();
         if (!is_null($user)) {
-            $user->delete();
-            $message = 'user Logged out  Successfully';
+            // حذف التوكن الحالي فقط (في حال استخدام Sanctum)
+            $user->currentAccessToken()->delete();
+            $message = 'User logged out successfully';
             $code = 200;
         } else {
-            $message = 'invaild token';
+            $message = 'Invalid token';
             $code = 404;
         }
-        return (['user' => $user, 'message' => $message, 'code' => $code]);
+
+        return [
+            'user' => null,
+            'message' => $message,
+            'code' => $code
+        ];
     }
-    public function createUser(array $data)
+
+    public function createUser(array $data): array
     {
         return DB::transaction(function () use ($data) {
-
             $user = $this->userRepository->create_User($data);
-
             $user->assignRole($data['role']);
-
             $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
 
             if (!empty($permissions)) {
@@ -142,35 +158,30 @@ class UserService
                 'code' => 200
             ];
         });
-    }    private function appendRolesAndPermission($user)
+    }
+
+    private function appendRolesAndPermission($user)
     {
-        $roles = [];
-        foreach ($user->roles as $role) {
-            $roles[] = $role->name;
-        }
+        $roles = $user->roles->pluck('name')->toArray();
         unset($user['roles']);
         $user['roles'] = $roles;
-        $permissions = [];
-        foreach ($user->permissions as $permission) {
-            $permissions[] = $permission->name;
-        }
+
+        $permissions = $user->permissions->pluck('name')->toArray();
         unset($user['permissions']);
         $user['permissions'] = $permissions;
 
         return $user;
     }
 
-    public function getVisibleUsers($Auth_user)
+    public function getVisibleUsers($Auth_user): array
     {
         $data = $this->userRepository->getAll();
         $array = [];
 
         foreach ($data as $user) {
-
             if ($Auth_user->id !== $user->id && $Auth_user->can('view', $user)) {
                 $array[] = $user;
             }
-
         }
 
         return [
@@ -179,8 +190,10 @@ class UserService
             'code' => 200
         ];
     }
-    public function searchUser( searchUserRequest $request){
-            $user = $this->userRepository->searchUser($request);
+
+    public function searchUser(searchUserRequest $request): array
+    {
+        $user = $this->userRepository->searchUser($request);
         return [
             'users' => UserResource::collection($user),
             'meta' => [
@@ -191,26 +204,29 @@ class UserService
             ],
             'message' => 'Users retrieved successfully',
             'code' => 200
-        ];    }
-    public function UpdateEmployee( $request,$id)
+        ];
+    }
+
+    public function UpdateEmployee($request, $id): array
     {
         $user = $this->userRepository->getById($id);
-        if(!$user) {
-    return [
-        'user' => null,
-        'message' => 'this user not found',
-        'code' => 404
-    ];
-}
+        if (!$user) {
+            return [
+                'user' => null,
+                'message' => 'this user not found',
+                'code' => 404
+            ];
+        }
         $this->authorize('update', $user);
         $user = $this->userRepository->UpdateEmployee($request->validated(), $id);
         return [
-            'user' =>  new UserResource($user),
+            'user' => new UserResource($user),
             'message' => 'success',
             'code' => 200
         ];
     }
-    public function ShowdetailEmployee($id)
+
+    public function ShowdetailEmployee($id): array
     {
         $user = $this->userRepository->getById($id);
 
@@ -225,22 +241,19 @@ class UserService
         $this->authorize('view', $user);
 
         return [
-            'user' =>  new UserDetailResource($user),
+            'user' => new UserDetailResource($user),
             'message' => 'User retrieved successfully',
             'code' => 200
         ];
     }
 
-    public function ShowAllRoles()
+    public function ShowAllRoles(): array
     {
-        $roles=$this->userRepository->ShowAllRoles();
+        $roles = $this->userRepository->ShowAllRoles();
         return [
-            'user' =>$roles,
+            'user' => $roles,
             'message' => 'Roles retrieved successfully',
             'code' => 200
         ];
-
     }
-
-
 }
