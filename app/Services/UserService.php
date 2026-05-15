@@ -1,10 +1,12 @@
 <?php
 namespace App\Services;
-use App\Http\Requests\addUserRequest;
+use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\campaign_kpiRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\searchUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UpdateUserStatusRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserResource;
@@ -83,6 +85,16 @@ class UserService
 
         $user = Auth::user();
 
+        if ($user->status === 'banned') {
+            Auth::logout();
+
+            return [
+                'user' => null,
+                'message' => 'Your account is banned. Please contact admin.',
+                'code' => 403
+            ];
+        }
+
         if (is_null($user->email_verified_at)) {
             return [
                 'user' => null,
@@ -106,8 +118,7 @@ class UserService
             'message' => 'Login successful',
             'code' => 200
         ];
-           }
-    public function logout()
+    }    public function logout()
     {
         $user = Auth::user();
         if (!is_null($user)) {
@@ -280,6 +291,54 @@ class UserService
         ];
 
     }
+    public function updateStatusUser(UpdateUserStatusRequest $request, $id)
+    {
+        $user = $this->userRepository->getById($id);
+
+        if (!$user) {
+            return [
+                'user' => null,
+                'message' => 'User not found',
+                'code' => 404
+            ];
+        }
+
+        $this->authorize('update', $user);
+
+        if ($request->status === 'banned' && $user->status === 'banned') {
+            return [
+                'user' => new UserResource($user),
+                'message' => 'User is already banned',
+                'code' => 400
+            ];
+        }
+
+        if ($request->status === 'active' && $user->status === 'active') {
+            return [
+                'user' => new UserResource($user),
+                'message' => 'User is already active',
+                'code' => 400
+            ];
+        }
+
+        $data = [
+            'status' => $request->status,
+            'banned_until' => $request->banned_until,
+            'ban_reason' => $request->ban_reason,
+
+        ];
+
+        $user = $this->userRepository->updateStatusUser($data, $user);
+
+        return [
+            'user' => new UserResource($user),
+            'message' => $user->status === 'banned'
+                ? 'User has been banned successfully'
+                : 'User has been activated successfully',
+            'code' => 200
+        ];
+    }
+
 
 
 }

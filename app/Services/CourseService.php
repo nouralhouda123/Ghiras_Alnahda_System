@@ -2,6 +2,7 @@
 namespace App\Services;
 use App\Http\Requests\CourseRequest;
 use App\Http\Resources\CourseResource;
+use App\Repositories\ApprovalRequestRepository;
 use App\Repositories\CourseRepository;
 use App\Repositories\CourseScheduleRepository;
 use App\Repositories\CourseSkillRepository;
@@ -18,6 +19,8 @@ class CourseService
 {
     public function __construct(
         EnrollmentRepository $EnrollmentRepository,
+        ApprovalRequestRepository $approvalRequestRepository,
+
         CourseRepository $courseRepository,
         CourseSkillRepository $skillRepository,
         CourseScheduleRepository $scheduleRepository,
@@ -32,6 +35,8 @@ class CourseService
         $this->userRepository = $userRepository;
         $this->profileRepository = $profileRepository;
         $this->specializationRepository = $specializationRepository;
+        $this->approvalRequestRepository = $approvalRequestRepository;
+
     }
     public function create(CourseRequest $request)
     {
@@ -70,6 +75,13 @@ class CourseService
                 }
             }
             $Course->load('instructor','skills','schedules');
+            $this->approvalRequestRepository->create([
+                'type'=>'course',
+            'status'=>'pending',
+            'approvable_id'=>$Course->id,
+                'approvable_type' => 'course',
+                'requested_by'=>Auth::user()->id
+            ]);
         return [
             'user' =>new CourseResource($Course) ,
             'message' => 'Course created successfully',

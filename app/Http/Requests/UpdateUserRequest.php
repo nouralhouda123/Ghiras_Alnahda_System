@@ -18,7 +18,6 @@ class UpdateUserRequest extends FormRequest
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'unique:users,email,' . $this->user],
             'phone' => ['sometimes', 'unique:users,phone,' . $this->user],
-            'status' => ['sometimes', 'in:active,banned,suspended'],
             'department_id' => ['sometimes', 'exists:departments,id'],
         ];
     }

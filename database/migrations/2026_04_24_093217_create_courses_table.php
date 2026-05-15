@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('status');
             $table->text('description')->nullable();
             $table->integer('duration_hours');
             $table->date('start_date');
@@ -25,7 +26,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->timestamps();
         });    }
-    
+
     public function down(): void
     {
         Schema::dropIfExists('courses');

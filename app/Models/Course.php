@@ -21,4 +21,8 @@ class Course extends Model
     {
         return $this->belongsTo(User::class, 'instructor_id');
     }
+    public function approvals()
+    {
+        return $this->morphMany(ApprovalRequest::class, 'approvable');
+    }
 }

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\addUserRequest;
+use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\searchUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Requests\UpdateUserStatusRequest;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -93,7 +94,7 @@ class UserController extends Controller
             'qr_code' => asset('storage/' . $user->volunteerProfile->qr_code),
         ], 'User profile data', 200);
     }
-    public function addUser(addUserRequest $request)
+    public function addUser(ApprovalRequest $request)
     {
         $this->authorize('create', [User::class, $request->role]);
         $data = $this->userService->createUser($request->validated());
@@ -164,11 +165,16 @@ class UserController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }}
 //عرض سجل نقاط متطوعين
-
-
-
-
-
+//تعديل حالة يوزر(حظر /الغاء حظر)
+    public function updateStatusUser($id, UpdateUserStatusRequest $request)
+    {
+        $data = $this->userService->updateStatusUser($request, $id);
+        if ($data['code'] === 200) {
+           return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+      } else {
+           return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }
+    }
 
 
 }
