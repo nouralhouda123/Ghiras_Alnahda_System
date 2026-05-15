@@ -1,6 +1,6 @@
 <?php
 namespace App\Services;
-use App\Http\Requests\addUserRequest;
+use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\campaign_kpiRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;

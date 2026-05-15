@@ -1,7 +1,7 @@
 <?php
 namespace App\Services;
 use App\Helpers\StorageHelper;
-use App\Http\Requests\addUserRequest;
+use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\CampaingRequest;
 use App\Http\Requests\SearchCampaignRequest;
 use App\Http\Resources\CampaignDetailsResource;
