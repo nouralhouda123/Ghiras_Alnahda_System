@@ -1,20 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\addUserRequest;
-use App\Http\Requests\EmailVerificationRequest;
-use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\searchUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Http\Requests\UserRequest;
+use App\Http\Requests\UpdateUserStatusRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
@@ -22,25 +20,28 @@ class UserController extends Controller
     use AuthorizesRequests;
 
     protected $userService;
+
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
     }
+
+    /**
+     * جلب بيانات البروفايل الشخصي - Clean Code
+     */
     public function profile()
     {
-        $user = auth()->user();
-        $imageUrl = $user->image ? asset('storage/' . $user->image) : null;
-        $responseData = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'profile_image_url' => $imageUrl,
-            'created_at' => $user->created_at,
-        ];
-        return ResponseHelper::Success($responseData, 'Profile data retrieved successfully', 200);
+        $data = $this->userService->profile();
+
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
 
+    /**
+     * تحديث بيانات البروفايل (الاسم، الهاتف، الصورة)
+     */
     public function updateProfile(Request $request)
     {
         $user = auth()->user();
@@ -50,9 +51,11 @@ class UserController extends Controller
             'email' => 'nullable|email|unique:users,email,' . $user->id,
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
         if ($request->has('name')) $user->name = $request->name;
         if ($request->has('phone')) $user->phone = $request->phone;
         if ($request->has('email')) $user->email = $request->email;
+
         if ($request->hasFile('image')) {
             if ($user->getRawOriginal('image')) {
                 Storage::disk('public')->delete($user->getRawOriginal('image'));
@@ -60,13 +63,19 @@ class UserController extends Controller
             $path = $request->file('image')->store('profile_images', 'public');
             $user->image = $path;
         }
+
         $user->save();
+
         if ($user->image) {
             $user->image = asset('storage/' . $user->image);
         }
+
         return ResponseHelper::Success($user, 'تم تحديث البروفايل بنجاح', 200);
     }
 
+    /**
+     * جلب بيانات بطاقة المستخدم (QR Code)
+     */
     public function card()
     {
         $user = auth()->user();
@@ -74,10 +83,14 @@ class UserController extends Controller
             'fullName' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
-            'qr_code' => asset('storage/' . $user->volunteerProfile->qr_code),
-        ], 'User profile data', 200);
+            'qr_code' => $user->volunteerProfile ? asset('storage/' . $user->volunteerProfile->qr_code) : null,
+        ], 'User profile card data', 200);
     }
-    public function addUser(addUserRequest $request)
+
+    /**
+     * إضافة مستخدم جديد (موظف)
+     */
+    public function addUser(ApprovalRequest $request)
     {
         $this->authorize('create', [User::class, $request->role]);
         $data = $this->userService->createUser($request->validated());
@@ -85,56 +98,115 @@ class UserController extends Controller
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         }
-
         return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
-    public function showAllEmployeeCampanig(  ){
-        $data=$this->userService->getVisibleUsers(Auth::user());
+
+    /**
+     * عرض جميع الموظفين المتاحين (حسب الصلاحيات)
+     */
+    public function showAllEmployeeCampanig()
+    {
+        $data = $this->userService->getVisibleUsers(Auth::user());
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
-    public function searchUser(searchUserRequest $request){
-        $data=$this->userService->searchUser($request);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    /**
+     * البحث عن مستخدم
+     */
+    public function searchUser(searchUserRequest $request)
+    {
+        $data = $this->userService->searchUser($request);
         if ($data['code'] === 200) {
             return ResponseHelper::Success([
                 'data' => $data['users'],
                 'meta' => $data['meta']
-            ], $data['message'], $data['code']);        }
-        else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
+            ], $data['message'], $data['code']);
+        }
+        return ResponseHelper::Error($data['users'] ?? null, $data['message'], $data['code']);
+    }
 
-    public function UpdateEmployee(UpdateUserRequest $request,$id){
-        $data=$this->userService->UpdateEmployee($request,$id);
+    /**
+     * تحديث بيانات موظف معين
+     */
+    public function UpdateEmployee(UpdateUserRequest $request, $id)
+    {
+        $data = $this->userService->UpdateEmployee($request, $id);
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
-    public function ShowdetailEmployee($id){
-        $data=$this->userService->ShowdetailEmployee($id);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    /**
+     * عرض تفاصيل موظف
+     */
+    public function ShowdetailEmployee($id)
+    {
+        $data = $this->userService->ShowdetailEmployee($id);
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
 
-//عرض كل الادوار
-    public function ShowAllRoles(){
-        $data=$this->userService->ShowAllRoles();
+    /**
+     * عرض جميع الأدوار المتاحة
+     */
+    public function ShowAllRoles()
+    {
+        $data = $this->userService->ShowAllRoles();
         if ($data['code'] === 200) {
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
-        } else {
-            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
-        }}
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
 
-///////جلب افضل المتطوعين
+    /**
+     * جلب قائمة المتطوعين
+     */
+    public function getVoulnteer()
+    {
+        $data = $this->userService->getVoulnteer();
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    /**
+     * عرض تفاصيل متطوع معين
+     */
+    public function showVolunteer($id)
+    {
+        $data = $this->userService->showVolunteer($id);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    /**
+     * تحديث حالة المستخدم (حظر / تفعيل)
+     */
+    public function updateStatusUser($id, UpdateUserStatusRequest $request)
+    {
+        $data = $this->userService->updateStatusUser($request, $id);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    /**
+     * جلب أفضل 5 متطوعين (حسب إجمالي النقاط)
+     */
     public function getTopVolunteers()
     {
         try {
-            $topVolunteers = \App\Models\User::role('volunteer')
+            $topVolunteers = User::role('Volunteer')
                 ->withSum('receivedPoints as total_points', 'points')
                 ->orderByDesc('total_points')
                 ->take(5)
@@ -144,7 +216,7 @@ class UserController extends Controller
                         'id' => $user->id,
                         'name' => $user->name,
                         'total_points' => (int) ($user->total_points ?? 0),
-                        'status' => $user->status ?? 'unknown',
+                        'status' => $user->status ?? 'active',
                     ];
                 });
 
@@ -154,13 +226,11 @@ class UserController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            // معالجة الخطأ وإرجاع رسالة مفهومة بدلاً من كراش للنظام
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ أثناء جلب البيانات، يرجى المحاولة لاحقاً.',
+                'message' => 'حدث خطأ أثناء جلب البيانات.',
                 'error_debug' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
-
 }

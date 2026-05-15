@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\addUserRequest;
+use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\CampaingRequest;
 use App\Http\Requests\SearchCampaignRequest;
 use App\Models\Campaign;
@@ -88,10 +88,8 @@ class CampaignController extends Controller
     }
     public function update(Request $request, string $id)
     {
-        //
     }
     public function destroy(string $id)
     {
-        //
     }
 }

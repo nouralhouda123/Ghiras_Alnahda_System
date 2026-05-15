@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Http\Requests\AttendanceRequest;
-use App\Http\Resources\AttendanceResource;
+use App\Http\Resources\ApprovalRequestResource;
 use App\Http\Resources\PointTransactionResources;
-use App\Repositories\AttendanceRepository;
+use App\Repositories\ApprovalRequestRepository;
 use App\Repositories\CampaingRepository;
 use App\Repositories\PointTransactionRepository;
 use Carbon\Carbon;
@@ -16,7 +16,7 @@ class AttendanceService
 {
     public function __construct(
         CampaingRepository $CampaingRepository,
-        AttendanceRepository $atendanceRepository,
+        ApprovalRequestRepository $atendanceRepository,
         PointTransactionRepository $pointTransactionRepository
     ) {
         $this->CampaingRepository = $CampaingRepository;
@@ -170,7 +170,7 @@ class AttendanceService
         }
 
         return [
-            'user' => AttendanceResource::collection($attendances),
+            'user' => ApprovalRequestResource::collection($attendances),
             'message' => 'success',
             'code' => 200
         ];
@@ -199,7 +199,7 @@ class AttendanceService
         }
 
         return [
-            'user' => AttendanceResource::collection($attendances),
+            'user' => ApprovalRequestResource::collection($attendances),
             'message' => 'success',
             'code' => 200
         ];

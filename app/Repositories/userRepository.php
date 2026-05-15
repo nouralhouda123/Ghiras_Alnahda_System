@@ -84,7 +84,8 @@ class userRepository
             'email' => $data['email'] ?? $user->email,
             'phone' => $data['phone'] ?? $user->phone,
             'department_id' => $data['department_id'] ?? $user->department_id,
-            'status' => $data['status'] ?? $user->status,            ]);
+           // 'status' => $data['status'] ?? $user->status,
+             ]);
         return $user;
     }
     public function getByRolesAndDepartment($roles, $departmentId)
@@ -94,7 +95,13 @@ class userRepository
             ->where('department_id', $departmentId)
             ->get();
     }
-
+//عرض متطوعين
+    public function getVoulnteer( )
+    {
+        return User::query()
+            ->role('Volunteer')
+            ->get();
+    }
     public function ShowAllRoles()
     {
         return Role::all();
@@ -102,5 +109,9 @@ class userRepository
 
 }
 
-
+    public function updateStatusUser(array $data, $user)
+    {
+        $user->update($data);
+        return $user;
+    }
 }

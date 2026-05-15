@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('email')->nullable()->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
+            $table->string('ban_reason')->nullable();
+            $table->date('banned_until')->nullable();
+
             //اضافة قيم ثابتة لحقل حالة
             $table->foreignId('department_id')
                 ->nullable()

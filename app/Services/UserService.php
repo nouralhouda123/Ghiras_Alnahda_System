@@ -5,9 +5,12 @@ namespace App\Services;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\searchUserRequest;
+use App\Http\Requests\UpdateUserStatusRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\VolunteerDetailsResource;
+use App\Http\Resources\VolunteerListResource;
 use App\Mail\EmailVerificationMail;
 use App\Models\User;
 use App\Repositories\EmailVerficationRepository;
@@ -41,8 +44,10 @@ class UserService
         return DB::transaction(function () use ($request) {
             $user = $this->userRepository->create($request->validated());
             $code = $this->generateVerificationCode();
+
             $this->emailRepository->deleteByEmail($request->email);
             $verification = $this->emailRepository->create($request->email, $code);
+
             Mail::to($user->email)->send(new EmailVerificationMail($code));
 
             return [
@@ -54,9 +59,6 @@ class UserService
         });
     }
 
-    /**
-     * تم تصحيح هذه الدالة لتعيد Array بدلاً من JsonResponse لمنع الخطأ في Controller
-     */
     public function Verify(EmailVerificationRequest $request): array
     {
         $emailverfication = $this->emailRepository->exists($request);
@@ -75,7 +77,7 @@ class UserService
         $emailverfication->delete();
 
         return [
-            'user' => $user, // نرسل اليوزر بعد التحديث
+            'user' => $user,
             'message' => 'تم تأكيد حسابك بنجاح يمكنك الان تسجيل الدخول',
             'code' => 200,
         ];
@@ -93,6 +95,15 @@ class UserService
 
         $user = Auth::user();
 
+        if ($user->status === 'banned') {
+            Auth::logout();
+            return [
+                'user' => null,
+                'message' => 'Your account is banned. Please contact admin.',
+                'code' => 403
+            ];
+        }
+
         if (is_null($user->email_verified_at)) {
             return [
                 'user' => null,
@@ -101,8 +112,10 @@ class UserService
             ];
         }
 
+        // جلب الصلاحيات من الأدوار وإسنادها للمستخدم في الجلسة الحالية
         $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
         $user->givePermissionTo($permissions);
+
         $user = User::with('roles.permissions', 'permissions')->find($user->id);
         $user = $this->appendRolesAndPermission($user);
         $user['token'] = $user->createToken('token')->plainTextToken;
@@ -114,14 +127,11 @@ class UserService
         ];
     }
 
-    /**
-     * تنبيه: تم تغيير $user->delete() لمنع حذف الحساب نهائياً عند تسجيل الخروج
-     */
     public function logout(): array
     {
         $user = Auth::user();
-        if (!is_null($user)) {
-            // حذف التوكن الحالي فقط (في حال استخدام Sanctum)
+        if ($user) {
+            // حذف التوكن الحالي بدلاً من حذف اليوزر (تجنب خطأ النسخة الثانية)
             $user->currentAccessToken()->delete();
             $message = 'User logged out successfully';
             $code = 200;
@@ -142,8 +152,8 @@ class UserService
         return DB::transaction(function () use ($data) {
             $user = $this->userRepository->create_User($data);
             $user->assignRole($data['role']);
-            $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
 
+            $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
             if (!empty($permissions)) {
                 $user->givePermissionTo($permissions);
             }
@@ -162,6 +172,7 @@ class UserService
 
     private function appendRolesAndPermission($user)
     {
+        // استخدام pluck لجعل الكود أنظف وأسرع
         $roles = $user->roles->pluck('name')->toArray();
         unset($user['roles']);
         $user['roles'] = $roles;
@@ -211,11 +222,7 @@ class UserService
     {
         $user = $this->userRepository->getById($id);
         if (!$user) {
-            return [
-                'user' => null,
-                'message' => 'this user not found',
-                'code' => 404
-            ];
+            return ['user' => null, 'message' => 'this user not found', 'code' => 404];
         }
         $this->authorize('update', $user);
         $user = $this->userRepository->UpdateEmployee($request->validated(), $id);
@@ -229,17 +236,10 @@ class UserService
     public function ShowdetailEmployee($id): array
     {
         $user = $this->userRepository->getById($id);
-
         if (!$user) {
-            return [
-                'user' => null,
-                'message' => 'User not found',
-                'code' => 404
-            ];
+            return ['user' => null, 'message' => 'User not found', 'code' => 404];
         }
-
         $this->authorize('view', $user);
-
         return [
             'user' => new UserDetailResource($user),
             'message' => 'User retrieved successfully',
@@ -253,6 +253,66 @@ class UserService
         return [
             'user' => $roles,
             'message' => 'Roles retrieved successfully',
+            'code' => 200
+        ];
+    }
+
+    public function getVoulnteer()
+    {
+        $Volunteer = $this->userRepository->getVoulnteer();
+        return [
+            'user' => VolunteerListResource::collection($Volunteer),
+            'message' => 'Volunteer retrieved successfully',
+            'code' => 200
+        ];
+    }
+
+    public function showVolunteer($id)
+    {
+        $user = $this->userRepository->getById($id);
+        if (!$user) {
+            return ['user' => null, 'message' => 'Volunteer not found', 'code' => 404];
+        }
+        return [
+            'user' => new VolunteerDetailsResource($user),
+            'message' => 'Volunteer retrieved successfully',
+            'code' => 200
+        ];
+    }
+
+    /**
+     * دالة البروفايل - تعتمد على الـ Resource بشكل كامل
+     */
+    public function profile()
+    {
+        $user = Auth::user();
+        return [
+            'user' => new UserResource($user),
+            'message' => 'Profile retrieved successfully',
+            'code' => 200
+        ];
+    }
+
+    public function updateStatusUser(UpdateUserStatusRequest $request, $id)
+    {
+        $user = $this->userRepository->getById($id);
+        if (!$user) {
+            return ['user' => null, 'message' => 'User not found', 'code' => 404];
+        }
+
+        $this->authorize('update', $user);
+
+        $data = [
+            'status' => $request->status,
+            'banned_until' => $request->banned_until,
+            'ban_reason' => $request->ban_reason,
+        ];
+
+        $user = $this->userRepository->updateStatusUser($data, $user);
+
+        return [
+            'user' => new UserResource($user),
+            'message' => $user->status === 'banned' ? 'User banned successfully' : 'User activated successfully',
             'code' => 200
         ];
     }

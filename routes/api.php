@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\courseController;
 use App\Http\Controllers\PointTransactionController;
@@ -9,6 +9,13 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\VolunteerRequestController;
+use App\Services\ApprovalRequestService;
+use App\Services\AIUnderstandingService;
+use App\Services\KPIBrain;
+use App\Services\KPIBrainService;
+use App\Services\KPIEngineService;
+use App\Services\KPIExtractorService;
+use App\Services\KpiUnderstandingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +32,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('register', [AuthController::class, 'register']);
 Route::post('verify', [AuthController::class, 'verify']);
 Route::post('login', [\App\Http\Controllers\AuthController::class, 'login'])->middleware('role.throttle');
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     //قسم الحملة
     Route::post('create_Campanig', [CampaignController::class, 'create'])
         ->middleware('can:create.campaign');
@@ -37,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('showAllEmployee', [UserController::class, 'showAllEmployeeCampanig']);
     Route::post('UpdateEmployee/{id}', [UserController::class, 'UpdateEmployee']);
     Route::post('ShowdetailEmployee/{id}', [UserController::class, 'ShowdetailEmployee']);
+    Route::put('/updateStatusUser/{id}', [UserController::class, 'updateStatusUser']);
 //
     Route::post('logout', [UserController::class, 'logout']) ;
     //قسم بروفايل
@@ -66,15 +74,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('showPointForUser', [PointTransactionController::class, 'showPointForUser']);
     Route::post('showPointForVolunteer/{id}', [PointTransactionController::class, 'showPointForVolunteer']);
 //فسم الحضور
-    Route::post('leaderCheckIn/{id}', [AttendanceController::class, 'leaderCheckIn'])->middleware('can:record.attendance');
-    Route::post('leaderCheckOut/{id}', [AttendanceController::class, 'leaderCheckOut']);
-    Route::post('campaignAttendances/{id}', [AttendanceController::class, 'campaignAttendances']);
-    Route::get('volunteerAttendances', [AttendanceController::class, 'volunteerAttendances']);
+    Route::post('leaderCheckIn/{id}', [ApprovalRequestController::class, 'leaderCheckIn']);
+      //ju]تعديل   ->middleware('can:record.attendance');
+    Route::post('leaderCheckOut/{id}', [ApprovalRequestController::class, 'leaderCheckOut']);
+    Route::post('campaignAttendances/{id}', [ApprovalRequestController::class, 'campaignAttendances']);
+    Route::get('volunteerAttendances', [ApprovalRequestController::class, 'volunteerAttendances']);
+    //قسم المتطوعين
+    Route::get('getVoulnteer', [UserController::class, 'getVoulnteer']);
+    Route::post('showVolunteer/{id}', [UserController::class, 'showVolunteer']);
+//طلبات موافقة
+    Route::get('showAllApprovalRequest', [ApprovalRequestController::class, 'showAll']);
+    Route::post('updateStatusApprovalRequest/{id}', [ApprovalRequestController::class, 'updateStatus']);
+    Route::post('indexDetailApprovalRequest/{id}', [ApprovalRequestController::class, 'indexDetail']);
 
+    Route::get('brain', function (KPIBrain $brain) {
 
+        return $brain->analyze(
+            request('text')
+        );
 
-
-
+    });
 
     // --- راوتات طلبات التطوع ---
     // 1. تقديم طلب جديد (للمستخدم)
@@ -89,4 +108,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/my-card', [VolunteerRequestController::class, 'getMyIDCard']);
     Route::get('top-volunteers', [UserController::class, 'getTopVolunteers']);
 
-});
+
+
+
+
+
+
+
+
+
+
+    Route::get('/kpi-engine', function (KPIEngineService $engine) {
+
+        return response()->json(
+            $engine->analyze("زيادة عدد المتطوعين إلى 5000 خلال 3 أشهر")
+        );
+    });          });
