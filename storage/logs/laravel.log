@@ -1087,6 +1087,7 @@
 #43 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\Ghiras-syste...')
 #44 {main}
 "} 
+<<<<<<< HEAD
 [2026-05-15 01:44:17] local.ERROR: Method Illuminate\Database\Eloquent\Collection::update does not exist. {"userId":2,"exception":"[object] (BadMethodCallException(code: 0): Method Illuminate\\Database\\Eloquent\\Collection::update does not exist. at D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Macroable\\Traits\\Macroable.php:112)
 [stacktrace]
 #0 D:\\Ghiras-system\\app\\Repositories\\userRepository.php(117): Illuminate\\Support\\Collection->__call('update', Array)
@@ -2457,4 +2458,36 @@ Did you mean this?
 #38 D:\\Ghiras-system\\public\\index.php(52): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
 #39 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('D:\\\\Ghiras-syste...')
 #40 {main}
+"} 
+=======
+>>>>>>> 898e623ac68173798ffce202036b0a6b4e9a2229
+[2026-05-15 03:14:25] local.ERROR: syntax error, unexpected token "<<", expecting end of file {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): syntax error, unexpected token \"<<\", expecting end of file at D:\\Ghiras-system\\app\\Http\\Middleware\\CheckIfUserBanned.php:2)
+[stacktrace]
+#0 {main}
+"} 
+[2026-05-15 03:14:26] local.ERROR: Uncaught InvalidArgumentException: Please provide a valid cache path. in D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\View\Compilers\Compiler.php:67
+Stack trace:
+#0 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\View\ViewServiceProvider.php(102): Illuminate\View\Compilers\Compiler->__construct(Object(Illuminate\Filesystem\Filesystem), false, '', true, 'php')
+#1 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\Container\Container.php(908): Illuminate\View\ViewServiceProvider->Illuminate\View\{closure}(Object(Illuminate\Foundation\Application), Array)
+#2 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\Container\Container.php(795): Illuminate\Container\Container->build(Object(Closure))
+#3 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\Foundation\Application.php(986): Illuminate\Container\Container->resolve('blade.compiler', Array, true)
+#4 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\Container\Container.php(731): Illuminate\Foundation\Application->resolve('blade.compiler', Array)
+#5 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\Foundation\Application.php(971): Illuminate\Container\Container->make('blade.compiler', Array)
+#6 D:\Ghiras-system\vendor\laravel\framework\src\Illuminate\Foundation\helpers.php(120): Illuminate\Foundation\Application->make('blade.compiler', Array)
+#7 Command line code(1): app('Illuminate\\View...')
+#8 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Uncaught InvalidArgumentException: Please provide a valid cache path. in D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\View\\Compilers\\Compiler.php:67
+Stack trace:
+#0 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\View\\ViewServiceProvider.php(102): Illuminate\\View\\Compilers\\Compiler->__construct(Object(Illuminate\\Filesystem\\Filesystem), false, '', true, 'php')
+#1 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(908): Illuminate\\View\\ViewServiceProvider->Illuminate\\View\\{closure}(Object(Illuminate\\Foundation\\Application), Array)
+#2 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(795): Illuminate\\Container\\Container->build(Object(Closure))
+#3 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(986): Illuminate\\Container\\Container->resolve('blade.compiler', Array, true)
+#4 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(731): Illuminate\\Foundation\\Application->resolve('blade.compiler', Array)
+#5 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(971): Illuminate\\Container\\Container->make('blade.compiler', Array)
+#6 D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\helpers.php(120): Illuminate\\Foundation\\Application->make('blade.compiler', Array)
+#7 Command line code(1): app('Illuminate\\\\View...')
+#8 {main}
+  thrown at D:\\Ghiras-system\\vendor\\laravel\\framework\\src\\Illuminate\\View\\Compilers\\Compiler.php:67)
+[stacktrace]
+#0 {main}
 "} 

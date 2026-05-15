@@ -21,3 +21,4 @@ class CheckIfUserBanned
         return $next($request);
     }
 }
+
