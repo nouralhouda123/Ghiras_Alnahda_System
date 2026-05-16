@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('status');
+            $table->string('status')->default('pending');
             $table->text('description')->nullable();
             $table->integer('duration_hours');
             $table->date('start_date');

@@ -17,12 +17,8 @@ return new class extends Migration
             $table->foreignId('campaign_id')
                 ->constrained()
                 ->cascadeOnDelete();
-
             $table->string('name');
-
-
             $table->decimal('target_value', 10, 2);
-
             $table->string('unit');
 
 

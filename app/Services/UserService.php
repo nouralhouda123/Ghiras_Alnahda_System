@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Services;
-
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\searchUserRequest;
@@ -82,7 +80,6 @@ class UserService
             'code' => 200,
         ];
     }
-
     public function login(LoginRequest $request): array
     {
         if (!Auth::attempt($request->only(['email', 'password']))) {
@@ -92,9 +89,7 @@ class UserService
                 'code' => 401
             ];
         }
-
         $user = Auth::user();
-
         if ($user->status === 'banned') {
             Auth::logout();
             return [
@@ -103,7 +98,6 @@ class UserService
                 'code' => 403
             ];
         }
-
         if (is_null($user->email_verified_at)) {
             return [
                 'user' => null,
@@ -111,27 +105,21 @@ class UserService
                 'code' => 403
             ];
         }
-
-        // جلب الصلاحيات من الأدوار وإسنادها للمستخدم في الجلسة الحالية
         $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
         $user->givePermissionTo($permissions);
-
         $user = User::with('roles.permissions', 'permissions')->find($user->id);
         $user = $this->appendRolesAndPermission($user);
         $user['token'] = $user->createToken('token')->plainTextToken;
-
         return [
             'user' => $user,
             'message' => 'Login successful',
             'code' => 200
         ];
     }
-
     public function logout(): array
     {
         $user = Auth::user();
         if ($user) {
-            // حذف التوكن الحالي بدلاً من حذف اليوزر (تجنب خطأ النسخة الثانية)
             $user->currentAccessToken()->delete();
             $message = 'User logged out successfully';
             $code = 200;
@@ -139,29 +127,24 @@ class UserService
             $message = 'Invalid token';
             $code = 404;
         }
-
         return [
             'user' => null,
             'message' => $message,
             'code' => $code
         ];
     }
-
     public function createUser(array $data): array
     {
         return DB::transaction(function () use ($data) {
             $user = $this->userRepository->create_User($data);
             $user->assignRole($data['role']);
-
             $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
             if (!empty($permissions)) {
                 $user->givePermissionTo($permissions);
             }
-
             $user = $this->appendRolesAndPermission(
                 User::with('roles.permissions', 'permissions')->find($user->id)
             );
-
             return [
                 'user' => $user,
                 'message' => 'Success',
@@ -169,10 +152,8 @@ class UserService
             ];
         });
     }
-
     private function appendRolesAndPermission($user)
     {
-        // استخدام pluck لجعل الكود أنظف وأسرع
         $roles = $user->roles->pluck('name')->toArray();
         unset($user['roles']);
         $user['roles'] = $roles;
@@ -280,9 +261,7 @@ class UserService
         ];
     }
 
-    /**
-     * دالة البروفايل - تعتمد على الـ Resource بشكل كامل
-     */
+
     public function profile()
     {
         $user = Auth::user();

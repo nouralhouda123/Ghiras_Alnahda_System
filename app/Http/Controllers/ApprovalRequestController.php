@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 
 
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\ApprovalStatusRequest;
 use App\Http\Requests\AttendanceRequest;
 use App\Http\Requests\CampaingRequest;
@@ -21,7 +20,7 @@ class ApprovalRequestController
     {
         $this->approvalRequestService = $approvalRequestService;
     }
-    public function showAll(ApprovalRequest $request,)
+    public function showAll( )
     {
         $data=$this->approvalRequestService->show();
         if($data['code']===200){
