@@ -107,7 +107,7 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     // رابط عرض البطاقة للمتطوع
     Route::get('/my-card', [VolunteerRequestController::class, 'getMyIDCard']);
     Route::get('top-volunteers', [UserController::class, 'getTopVolunteers']);
-
+    Route::post('campaignsjoin/{campaignId}', [CampaignController::class, 'joinCampaign']);
 
 
 

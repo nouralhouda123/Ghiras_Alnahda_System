@@ -93,4 +93,22 @@ class CampaignController extends Controller
     public function destroy(string $id)
     {
     }
+
+
+    /**
+     * انضمام المتطوع إلى الحملة مباشرة
+     */
+    public function joinCampaign($campaignId)
+    {
+        // استدعاء السيرفيس وتمرير معرف الحملة بعد تحويله لنوع رقمي صريح
+        $data = $this->campaignService->joinCampaign((int) $campaignId);
+
+        // إذا كان كود الحالة يعبر عن نجاح العملية (200)
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+
+        // في حال حدوث أي خطأ منطقي (مثل امتلاء المقاعد أو حالة حساب غير نشطة)
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
 }
