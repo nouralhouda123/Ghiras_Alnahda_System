@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\courseController;
 use App\Http\Controllers\PointTransactionController;
 use App\Http\Controllers\RoleController;
@@ -108,7 +109,13 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     Route::get('/my-card', [VolunteerRequestController::class, 'getMyIDCard']);
     Route::get('top-volunteers', [UserController::class, 'getTopVolunteers']);
     Route::post('campaignsjoin/{campaignId}', [CampaignController::class, 'joinCampaign']);
+ /////////////////////Complaint with Raya heeeeeeeeheeeee
 
+    Route::get('complaintsMeta-data', [ComplaintController::class, 'metaData']);
+
+
+    Route::get('showComplaints', [ComplaintController::class, 'index']);
+    Route::post('Addcomplaints', [ComplaintController::class, 'store']);
 
 
 
