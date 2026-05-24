@@ -111,4 +111,15 @@ class CampaignController extends Controller
         // في حال حدوث أي خطأ منطقي (مثل امتلاء المقاعد أو حالة حساب غير نشطة)
         return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
+    //عرض حملاتي
+    public function showMyCampanig()
+    {
+        $data=$this->campaignService->showMyCampanig();
+        if($data['code']===200){
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }
+    }
+
 }

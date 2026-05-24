@@ -79,6 +79,11 @@ class User extends Authenticatable
         return $this->hasMany(PointTransaction::class, 'awarded_by');
     }
 
-
+    public function myCourses()
+    {
+        return $this->belongsToMany(Course::class, 'enrollments')
+            ->withPivot('status', 'enrolled_at')
+            ->withTimestamps();
+    }
 
 }

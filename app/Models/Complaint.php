@@ -4,21 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Complaint extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
+
     protected $casts = [
         'is_anonymous' => 'boolean',
     ];
 
     public static function getSensitivityMetaData(): array
     {
-
-
-
         return [
             'level_1' => [
                 'label' => 'Level 1 — General Support',
@@ -39,43 +38,34 @@ class Complaint extends Model
                 'allow_anonymous' => true
             ]
         ];
-
     }
-    public function scopeWithControlPermission(Builder $query): Builder
+
+    public function scopeWithControlPermission($query, ?string $status = null)
     {
+        /** @var \App\Models\User|\Illuminate\Contracts\Auth\Authenticatable $user */
         $user = auth()->user();
 
-        /** @var \App\Models\User $user */
-        // 1. الإدارة العليا ترى كافة المستويات
-        if ($user->hasRole('general_manager')) {
-            return $query;
+        // دمج الشروط لحذف الـ Empty Body وتأمين الاستعلام بناءً على الصلاحيات
+        if ($user && !$user->hasPermissionTo('resolve.complaint')) {
+            if ($user->hasPermissionTo('create.complaint') && $user->hasPermissionTo('view.complaint')) {
+                $query->whereIn('sensitivity_level', ['level_1', 'level_2']);
+            } else {
+                $query->where('user_id', $user->id)->where('is_anonymous', false);
+            }
         }
 
-        // 2. مدير القسم يرى المستوى الأول والثاني فقط
-        if ($user->hasRole('department_manager')) {
-            return $query->whereIn('sensitivity_level', ['level_1', 'level_2']);
+        if ($status) {
+            $query->where('status', $status);
         }
 
-        // 3. فريق الدعم يرى المستوى الأول فقط لحلها
-        if ($user->hasRole('support_team')) {
-            return $query->where('sensitivity_level', 'level_1');
-        }
-
-        // 4. إذا كان مستخدماً عادياً (متطوع) يرى فقط شكاويه الشخصية المفتوحة باسمه
-        return $query->where('user_id', $user->id)->where('is_anonymous', false);
+        return $query;
     }
 
-    /**
-     * Relationship: الشكوى تنتمي لمستخدم (المشتكي) - Nullable في حال كانت مجهولة
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Relationship: الشكوى تنتمي لموظف معين تم تعيينه لحلها
-     */
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_user_id');

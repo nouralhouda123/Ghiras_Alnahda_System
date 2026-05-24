@@ -272,4 +272,32 @@ class CampaignService
             ];
         }
 
-}}
+}
+
+
+    public function showMyCampanig()
+    {
+        $user = auth()->user();
+        if (!$user->volunteerProfile) {
+            return [
+                'user' => null,
+                'message' => 'No volunteer profile found for this user.',
+                'code' => 404
+            ];
+        }
+        $campaigns = $user->volunteerProfile
+            ->campaigns()
+            ->get();
+        return [
+            'user' => CampaignResource::collection($campaigns),
+            'message' => 'Your campaigns retrieved successfully.',
+            'code' => 200
+        ];
+    }
+
+
+
+
+
+
+}
