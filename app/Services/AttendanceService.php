@@ -6,6 +6,7 @@ use App\Http\Requests\AttendanceRequest;
 use App\Http\Resources\ApprovalRequestResource;
 use App\Http\Resources\PointTransactionResources;
 use App\Repositories\ApprovalRequestRepository;
+use App\Repositories\AttendanceRepository;
 use App\Repositories\CampaingRepository;
 use App\Repositories\PointTransactionRepository;
 use Carbon\Carbon;
@@ -16,7 +17,7 @@ class AttendanceService
 {
     public function __construct(
         CampaingRepository $CampaingRepository,
-        ApprovalRequestRepository $atendanceRepository,
+        AttendanceRepository $atendanceRepository,
         PointTransactionRepository $pointTransactionRepository
     ) {
         $this->CampaingRepository = $CampaingRepository;

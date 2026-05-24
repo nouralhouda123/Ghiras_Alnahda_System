@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Helpers\ResponseHelper;
-use App\Http\Requests\ApprovalRequest;
+use App\Http\Requests\AddPermission;
+use App\Http\Requests\addUserRequest;
 use App\Http\Requests\EmailVerificationRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\searchUserRequest;
@@ -74,7 +75,17 @@ class UserController extends Controller
             'qr_code' => asset('storage/' . $user->volunteerProfile->qr_code),
         ], 'User profile data', 200);
     }
-    public function addUser(ApprovalRequest $request)
+    public function assignDepartmentManager( $department_is,$user_id)
+    {
+        $data = $this->userService->assignDepartmentManager($department_is,$user_id);
+        if ($data['code'] === 200) {
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        }
+
+        return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+    }
+
+    public function addUser(addUserRequest $request)
     {
         $this->authorize('create', [User::class, $request->role]);
         $data = $this->userService->createUser($request->validated());

@@ -20,12 +20,6 @@ return new class extends Migration
             $table->string('ban_reason')->nullable();
             $table->date('banned_until')->nullable();
 
-            //اضافة قيم ثابتة لحقل حالة
-            $table->foreignId('department_id')
-                ->nullable()
-                ->constrained('departments')
-                ->nullOnDelete();
-
             $table->enum('status', [
                 'active',
                 'banned',

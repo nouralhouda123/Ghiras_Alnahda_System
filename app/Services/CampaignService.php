@@ -3,11 +3,13 @@ namespace App\Services;
 use App\Helpers\StorageHelper;
 use App\Http\Requests\ApprovalRequest;
 use App\Http\Requests\CampaingRequest;
-use App\Http\Requests\SearchCampaignRequest;
+use App\Http\Requests\SearchForPermissionsAndRolesRequest;
 use App\Http\Resources\CampaignDetailsResource;
 use App\Http\Resources\CampaignResource;
 use App\Http\Resources\UserResource;
+use App\Repositories\AttendanceRepository;
 use App\Repositories\CampaingRepository;
+use App\Repositories\PointTransactionRepository;
 use App\Repositories\userRepository;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -15,76 +17,84 @@ use Illuminate\Support\Facades\Log;
 
 class CampaignService
 {
-    public function __construct(CampaingRepository $CampaingRepository,userRepository $userRepository)
-    {
-        $this->CampaingRepository = $CampaingRepository;
-        $this->userRepository=$userRepository;
+    public function __construct(
+        CampaingRepository $CampaignRepository,
+        KPIBrain $KPIBrain,
+        IndicatorMatchingService $indicatorService
+    ) {
+        $this->CampaignRepository = $CampaignRepository;
+        $this->KPIBrain = $KPIBrain;
+        $this->indicatorService = $indicatorService;
     }
+
+
     public function create(CampaingRequest $request)
     {
-        $storedFiles = [];
-        try {
-            return DB::transaction(function () use ($request, &$storedFiles) {
-                $data = $request->validated();
-                if ($request->hasFile('image')) {
-                    $images = [];
-                    foreach ($request->file('image') as $image) {
-                        $path = StorageHelper::storeFile($image, 'campaigns/images');
-                        $images[] = $path;
-                        $storedFiles[] = $path;
-                    }
-                    $data['image'] = json_encode($images);
-                }
-                if ($request->hasFile('video')) {
-                    $videos = [];
-                    foreach ($request->file('video') as $video) {
-                        $path = StorageHelper::storeFile($video, 'campaigns/videos');
-                        $videos[] = $path;
-                        $storedFiles[] = $path;
-                    }
-                    $data['video'] = json_encode($videos);
+        return DB::transaction(function () use ($request) {
+
+            $data = $request->validated();
+            unset($data['image'], $data['video'], $data['goals']);
+
+            if ($request->hasFile('image')) {
+                $images = [];
+
+                foreach ($request->file('image') as $image) {
+                    $images[] = StorageHelper::storeFile($image, 'campaigns/images');
                 }
 
-                $campaign = $this->CampaingRepository->createCampaing($data);
-                if ($request->has_evaluation) {
-                    foreach ($request->kpis as $kpi) {
-                        $this->CampaingRepository->createCampaing_Kpi([
-                            'name' => $kpi['name'],
-                            'target_value' => $kpi['target_value'],
-                            'unit' => $kpi['unit'],
-                            'campaign_id' => $campaign->id,
-                        ]);
-                    }
-                }
-
-                return [
-                    'user' => $this->CampaingRepository->indexWithRelation($campaign->id),
-                    'message' => 'success',
-                    'code' => 201
-                ];
-            });
-
-        } catch (\Throwable $e) {
-
-            foreach ($storedFiles as $file) {
-                StorageHelper::deleteFile($file);
+                $data['image'] = json_encode($images);
             }
 
-            Log::error('Campaign Creation Failed', [
-                'error' => $e->getMessage()
-            ]);
+            if ($request->hasFile('video')) {
+                $videos = [];
+
+                foreach ($request->file('video') as $video) {
+                    $videos[] = StorageHelper::storeFile($video, 'campaigns/videos');
+                }
+
+                $data['video'] = json_encode($videos);
+            }
+            $campaign = $this->CampaignRepository->createCampaing($data);
+
+            $results = [];
+
+            if ($request->has_evaluation && !empty($request->goals)) {
+
+                foreach ($request->goals as $goalText) {
+
+                    $analysis = $this->KPIBrain->analyze($goalText);
+
+                    $kpi = $this->CampaignRepository->createCampaing_Kpi([
+                        'campaign_id' => $campaign->id,
+                        'goal_text'   => $goalText,
+                        'domain'      => $analysis['domain'],
+                        'intent'      => $analysis['intent'],
+                        'type'        => $analysis['type'],
+                        'target_value'=> $analysis['target'] ?? null,
+                    ]);
+
+                    $indicators = $this->indicatorService->generate(
+                        $analysis,
+                        $goalText
+                    );
+
+                    $results[] = [
+                        'goal' => $kpi,
+                        'analysis' => $analysis,
+                        'indicators' => $indicators
+                    ];
+                }
+            }
 
             return [
-                'user' => null,
-                'message' => $e->getMessage(),
-               // 'error' => $e->getMessage(),
-                'code' => 500
-            ];        }
-    }
-    public function show()
+                'user' => $results,
+                'results' => $results,
+                'message' => 'Campaign created successfully',
+                'code' => 201
+            ];
+        });
+    }        public function show()
     {
-        //ضبط صلاحيات والادوار
-        //تزبيط رسائل
         $campanig=$this->CampaingRepository->index();
         return (['user'=>  CampaignResource::collection($campanig),
             'message' => 'Campaigns retrieved successfully',
@@ -111,7 +121,7 @@ class CampaignService
             'code' => 404
         ];
     }
-    public function SearchCampaign(SearchCampaignRequest $request)
+    public function SearchCampaign(SearchForPermissionsAndRolesRequest $request)
     {
         $campanig = $this->CampaingRepository->Search($request);
 
@@ -157,7 +167,6 @@ class CampaignService
                 'code' => 400
             ];
         }
-
         $this->CampaingRepository->update([
             'leader_id' => $userId
         ], $campaign);

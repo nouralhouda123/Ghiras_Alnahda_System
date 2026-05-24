@@ -1,59 +1,55 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('indicators', function (Blueprint $table) {
+public function up(): void
+{
+    Schema::create('indicators', function (Blueprint $table) {
 
-            $table->id();
+        $table->id();
 
-            // اسم المؤشر
-            $table->string('name');
+        $table->string('name');
+        $table->text('description')->nullable();
 
-            // شرح المؤشر
-            $table->text('description')->nullable();
+        $table->string('domain');
+        $table->string('campaign_type')->nullable();
 
-            // المجال
-            $table->string('domain');
+        $table->enum('type', ['numeric', 'qualitative']);
 
-            // نوع الحملة
-            $table->string('campaign_type')->nullable();
+        $table->enum('data_source', ['database', 'survey', 'manual', 'api']);
 
-            // طريقة الحساب
-            $table->string('operation');
+        $table->enum('calculation_type', [
+            'count',
+            'sum',
+            'avg',
+            'percentage'
+        ]);
 
-            // الجدول المرتبط
-            $table->string('table_name');
+        $table->string('operation')->nullable();
 
-            // العمود المستخدم
-            $table->string('column_name')->nullable();
+        // DB-based KPI
+        $table->string('table_name')->nullable();
+        $table->string('column_name')->nullable();
 
-            // صيغة الحساب
-            $table->text('formula')->nullable();
+        // Survey-based KPI
+        $table->unsignedBigInteger('survey_id')->nullable();
+        // Target
+        $table->decimal('target_value', 10, 2)->nullable();
 
-            // هل يحتاج survey؟
-            $table->boolean('needs_survey')->default(false);
+        $table->decimal('base_weight', 5, 2)->default(1);
+        $table->integer('priority')->default(1);
 
-            // هل يمكن حسابه من DB؟
-            $table->boolean('is_computable')->default(true);
-            $table->decimal('base_weight', 5, 2)->default(1);
-            // مستوى الأهمية
-            $table->integer('priority')->default(1);
+        $table->json('tags')->nullable();
 
-            // tags للذكاء
-            $table->json('tags')->nullable();
+        $table->timestamps();
+    });}
 
-            $table->timestamps();
-        });    }    public function down(): void
-    {
-        Schema::dropIfExists('indicators');
-    }
+public function down(): void
+{
+Schema::dropIfExists('indicators');
+}
 };
+

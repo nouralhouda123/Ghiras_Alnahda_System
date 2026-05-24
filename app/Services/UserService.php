@@ -11,13 +11,16 @@ use App\Http\Resources\VolunteerDetailsResource;
 use App\Http\Resources\VolunteerListResource;
 use App\Mail\EmailVerificationMail;
 use App\Models\User;
+use App\Repositories\DepartmentRepository;
 use App\Repositories\EmailVerficationRepository;
+use App\Repositories\RoleRepository;
 use App\Repositories\userRepository;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Role;
 
 class UserService
 {
@@ -25,11 +28,16 @@ class UserService
 
     protected $userRepository;
     protected $emailRepository;
+    private DepartmentRepository $departmentRepository;
+    private RoleRepository $roleRepository;
 
-    public function __construct(userRepository $userRepository, EmailVerficationRepository $emailRepository)
+    public function __construct(  RoleRepository $roleRepository,DepartmentRepository $departmentRepository,userRepository $userRepository, EmailVerficationRepository $emailRepository)
     {
+        $this->departmentRepository=$departmentRepository;
         $this->userRepository = $userRepository;
         $this->emailRepository = $emailRepository;
+        $this->roleRepository = $roleRepository;
+
     }
 
     protected function generateVerificationCode(): string
@@ -133,26 +141,71 @@ class UserService
             'code' => $code
         ];
     }
+    public function assignDepartmentManager($departmentId, $userId)
+    {
+        $department=$this->departmentRepository->find($departmentId);
+        if (!$department) {
+            return [
+                'user'=>null,
+                'message' => 'Department not found',
+                'code' => 404
+            ];
+        }
+
+$user=$this->userRepository->getById($userId);
+        if (!$user) {
+            return [
+                'user'=>null,
+                'message' => 'User not found',
+                'code' => 404
+            ];
+        }
+        $department->manager_id = $user->id;
+        $department->save();
+        return [
+            'user'=>$user,
+            'message' => 'Manager assigned successfully',
+            'code' => 200
+        ];
+    }
     public function createUser(array $data): array
     {
         return DB::transaction(function () use ($data) {
+
             $user = $this->userRepository->create_User($data);
-            $user->assignRole($data['role']);
-            $permissions = $user->getPermissionsViaRoles()->pluck('name')->toArray();
-            if (!empty($permissions)) {
-                $user->givePermissionTo($permissions);
+
+            $role=$this->roleRepository->findRoleByDepartment($data['department_id']);
+            if (!$role) {
+                return [
+                    'user' => null,
+                    'message' => 'Invalid role for this department',
+                    'code' => 422
+                ];
             }
+
+            $user->assignRole($role->name);
+
+            if (str_contains($role->name, 'Manager')) {
+
+                $department=$this->departmentRepository->find($data['department_id']);
+
+                if ($department) {
+                    $department->manager_id = $user->id;
+                    $department->save();
+                }
+            }
+
             $user = $this->appendRolesAndPermission(
                 User::with('roles.permissions', 'permissions')->find($user->id)
             );
+
             return [
                 'user' => $user,
                 'message' => 'Success',
                 'code' => 200
             ];
         });
-    }
-    private function appendRolesAndPermission($user)
+    }       private function appendRolesAndPermission($user)
     {
         $roles = $user->roles->pluck('name')->toArray();
         unset($user['roles']);
@@ -283,7 +336,6 @@ class UserService
 
         $data = [
             'status' => $request->status,
-            'banned_until' => $request->banned_until,
             'ban_reason' => $request->ban_reason,
         ];
 

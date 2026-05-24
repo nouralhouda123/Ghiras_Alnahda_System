@@ -21,7 +21,6 @@ class AuthController extends Controller
         $this->userService = $userService;
     }
 
-    // --- تسجيل الدخول والتحقق (جاهزة كما هي) ---
     public function register(UserRequest $request) {
         $data = $this->userService->register($request);
         if ($data['code'] === 200) {
@@ -33,8 +32,8 @@ class AuthController extends Controller
     public function verify(EmailVerificationRequest $request)
     {
         $data = $this->userService->Verify($request);
-        return ($data['code'] === 200) 
-            ? ResponseHelper::Success($data['user'], $data['message'], 200) 
+        return ($data['code'] === 200)
+            ? ResponseHelper::Success($data['user'], $data['message'], 200)
             : ResponseHelper::Error($data['user'], $data['message'], $data['code']);
     }
     public function login(LoginRequest $request)
@@ -47,7 +46,6 @@ class AuthController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }
     }
-///logout
     public function logout()
     {
         $data = [];

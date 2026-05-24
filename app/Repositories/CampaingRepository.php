@@ -33,7 +33,6 @@ class CampaingRepository
     public function createCampaing_Kpi( array $data)
     {
         return Campaign_kpi::create($data);
-
     }
     public function findById($id)
     {

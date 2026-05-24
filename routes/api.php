@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\ApprovalRequestController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\courseController;
+use App\Http\Controllers\IndicatorController;
+use App\Http\Controllers\IndicatorGeneratorController;
+use App\Http\Controllers\KPIController;
 use App\Http\Controllers\PointTransactionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -55,14 +59,33 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     Route::post('storeDepartment', [DepartmentController::class, 'store']);
     Route::get('showAllDepartment', [DepartmentController::class, 'index']);
     Route::post('addUser', [UserController::class, 'addUser']);
+        Route::post('assignDepartmentManager/{id}/{user_id}', [UserController::class, 'assignDepartmentManager']);
     //ادارة الادوار
     Route::get('getRoleNames', [RoleController::class, 'getRoleNames']);
+    Route::post('AddRoleForDepartment/{id}', [RoleController::class, 'AddRoleForDepartment']);
+        Route::post('showRoleForDepartment/{id}', [RoleController::class, 'showRoleForDepartment']);
+
+    Route::post('updateRole/{id}', [RoleController::class, 'updateRole']);
+    Route::delete('DeleteRole/{id}', [RoleController::class, 'DeleteRole']);
+    Route::get('getAllRoles', [RoleController::class, 'getAllRoles']);
+    Route::post('SearchForRoles', [\App\Http\Controllers\RoleController::class, 'SearchForRoles']);
+    Route::get('getAllPermissions', [\App\Http\Controllers\PermissionController::class, 'getAllPermissions']);
+    Route::post('getAllPermissionsForRole/{id}', [\App\Http\Controllers\PermissionController::class, 'getAllPermissionsForRole']);
+    Route::post('AddPermission', [\App\Http\Controllers\PermissionController::class, 'AddPermission']);
+    Route::post('AddPermissionToRole/{id}/{permission_id}', [\App\Http\Controllers\PermissionController::class, 'AddPermissionToRole']);
+    Route::post('updatePermission/{id}', [\App\Http\Controllers\PermissionController::class, 'updatePermission']);
+    Route::post('updatePermissionForRole/{id}/{permission_id}', [\App\Http\Controllers\PermissionController::class, 'updatePermissionForRole']);
+    Route::delete('DeletePermission/{id}', [\App\Http\Controllers\PermissionController::class, 'DeletePermission']);
+    Route::delete('deletePermissionForRole/{id}/{permission_id}', [\App\Http\Controllers\PermissionController::class, 'DeletePermission']);
+    Route::post('SearchForPermissions', [\App\Http\Controllers\PermissionController::class, 'SearchForPermissions']);
+
 //قسم الكورسات
     Route::post('addCourse', [\App\Http\Controllers\courseController::class, 'create'])
         ->middleware('can:add.course');
     Route::get('indexAllCourses', [\App\Http\Controllers\courseController::class, 'index']);
     Route::post('indexDetailCourse/{id}', [\App\Http\Controllers\courseController::class, 'show']);
     Route::post('courses/enroll/{id}', [CourseController::class, 'store']);
+        Route::get('showMyCourses', [CourseController::class, 'showMyCourses']);
 //قسم  ادارة المستخدمين
     Route::get('showAllUsers', [UserController::class, 'showAllEmployeeCampanig']);
     Route::post('UpdateUser/{id}', [UserController::class, 'UpdateEmployee']);
@@ -71,14 +94,17 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     Route::post('searchUserByName', [UserController::class, 'searchUser']);
     Route::post('searchUserByRole', [UserController::class, 'searchUser']);
     Route::get('ShowAllRoles', [UserController::class, 'ShowAllRoles']);
+
+        Route::put('updateStatusUser/{id}', [UserController::class, 'updateStatusUser']);
+
     Route::get('showPointForUser', [PointTransactionController::class, 'showPointForUser']);
     Route::post('showPointForVolunteer/{id}', [PointTransactionController::class, 'showPointForVolunteer']);
 //فسم الحضور
-    Route::post('leaderCheckIn/{id}', [ApprovalRequestController::class, 'leaderCheckIn']);
+    Route::post('leaderCheckIn/{id}', [AttendanceController::class, 'leaderCheckIn']);
       //ju]تعديل   ->middleware('can:record.attendance');
-    Route::post('leaderCheckOut/{id}', [ApprovalRequestController::class, 'leaderCheckOut']);
-    Route::post('campaignAttendances/{id}', [ApprovalRequestController::class, 'campaignAttendances']);
-    Route::get('volunteerAttendances', [ApprovalRequestController::class, 'volunteerAttendances']);
+    Route::post('leaderCheckOut/{id}', [AttendanceController::class, 'leaderCheckOut']);
+    Route::post('campaignAttendances/{id}', [AttendanceController::class, 'campaignAttendances']);
+    Route::get('volunteerAttendances', [AttendanceController::class, 'volunteerAttendances']);
     //قسم المتطوعين
     Route::get('getVoulnteer', [UserController::class, 'getVoulnteer']);
     Route::post('showVolunteer/{id}', [UserController::class, 'showVolunteer']);
@@ -86,14 +112,26 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     Route::get('showAllApprovalRequest', [ApprovalRequestController::class, 'showAll']);
     Route::post('updateStatusApprovalRequest/{id}', [ApprovalRequestController::class, 'updateStatus']);
     Route::post('indexDetailApprovalRequest/{id}', [ApprovalRequestController::class, 'indexDetail']);
+////////////////////////////kpis
+    Route::post('analyze', [KPIController::class, 'analyze']);
 
-    Route::get('brain', function (KPIBrain $brain) {
+    Route::post('generate-indicators', [
+        IndicatorGeneratorController::class,
+        'generate'
+    ]);
 
-        return $brain->analyze(
-            request('text')
-        );
 
-    });
+
+
+
+
+
+
+
+
+
+
+    Route::get('result/{id}', [KPIController::class, 'result']);
 
     // --- راوتات طلبات التطوع ---
     // 1. تقديم طلب جديد (للمستخدم)

@@ -176,4 +176,16 @@ class CourseService
             'message' => 'Successfully enrolled in the course.',
             'code' => 201
         ];
-    }}
+    }
+
+    public function showMyCourses()
+    {
+       $user=Auth::user();
+       $myCourses=$user->myCourses()->get();
+        return [
+            'user' => CourseResource::collection($myCourses),
+            'message' => 'User courses retrieved successfully.',
+            'code' => 200
+        ];
+    }
+}

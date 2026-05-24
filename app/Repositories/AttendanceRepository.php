@@ -12,7 +12,8 @@ class AttendanceRepository
     public function create(array $data)
     {
         return Attendance::create($data);
-    }    public function findActiveLeaderSession($userId, $campaignId)
+    }
+    public function findActiveLeaderSession($userId, $campaignId)
     {
         return Attendance::where('volunteer_id', $userId)
             ->where('campaign_id', $campaignId)

@@ -1,13 +1,10 @@
 <?php
-
 namespace App\Repositories;
-
 use App\Models\Campaign;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-
 class userRepository
 {
     public function getByEmail(string $email): ?User

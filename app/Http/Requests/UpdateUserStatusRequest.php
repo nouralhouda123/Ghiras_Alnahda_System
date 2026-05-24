@@ -23,12 +23,6 @@ class UpdateUserStatusRequest extends FormRequest
                 'max:255'
             ],
 
-            'banned_until' => [
-                'required_if:status,banned',
-                'nullable',
-                'date',
-                'after:now'
-            ],
         ];
     }
     public function messages(): array
@@ -37,8 +31,6 @@ class UpdateUserStatusRequest extends FormRequest
             'status.required' => 'Status is required',
             'status.in' => 'Status must be active or banned',
 
-            'banned_until.date' => 'Ban end date must be a valid date',
-            'banned_until.after' => 'Ban end date must be in the future',
         ];
     }
 }

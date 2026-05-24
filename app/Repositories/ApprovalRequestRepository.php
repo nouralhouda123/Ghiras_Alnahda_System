@@ -27,4 +27,6 @@ class ApprovalRequestRepository
     public function update(array $data, $model)
     {
         return $model->update($data);
-    }}
+    }
+
+}

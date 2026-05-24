@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Http\Resources\DepartmentResourses;
 use App\Repositories\CampaingRepository;
 use App\Repositories\DepartmentRepository;
 use App\Repositories\userRepository;
@@ -28,7 +29,7 @@ class DepartmentService
         }
 
         return [
-            'data' => $departments,
+            'data' =>  DepartmentResourses::collection($departments),
             'message' => 'Departments retrieved successfully',
             'code' => 200
         ];

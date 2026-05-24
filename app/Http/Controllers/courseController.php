@@ -46,9 +46,9 @@ class courseController extends Controller
             return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
         }
     }
-    public function show( $id)
+    public function showMyCourses( )
     {
-        $data=$this->CourseService->show($id);
+        $data=$this->CourseService->showMyCourses();
         if($data['code']===200){
             return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
         } else {

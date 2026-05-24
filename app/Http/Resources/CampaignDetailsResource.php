@@ -15,12 +15,13 @@ class CampaignDetailsResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'type' => $this->type,
+            'location' => $this->location,
             'status' => $this->status,
             'priority' => $this->priority,
             'leader_id' => $this->leader_id,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'location' => [
+            'locationMap' => [
                 'latitude' => $this->when($hasRole, $this->latitude),
                 'longitude' => $this->when($hasRole, $this->longitude),
                 'radius' => $this->when($hasRole, $this->radius),

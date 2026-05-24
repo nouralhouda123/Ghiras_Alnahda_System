@@ -13,20 +13,16 @@ return new class extends Migration
     {
         Schema::create('campaign_kpis', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('campaign_id')
-                ->constrained()
-                ->cascadeOnDelete();
-            $table->string('name');
-            $table->decimal('target_value', 10, 2);
-            $table->string('unit');
-
-
+            $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
+            $table->text('goal_text'); // الهدف النصي
+            // Step 1 output
+            $table->string('domain')->nullable();
+            $table->string('intent')->nullable();
+            $table->string('type')->nullable();
+            $table->integer('target_value')->nullable();
             $table->timestamps();
-        });}    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+        });  }
+        public function down(): void
     {
         Schema::dropIfExists('campaign_kpis');
     }

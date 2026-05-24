@@ -1,9 +1,5 @@
 <?php
-
-
 namespace App\Http\Controllers;
-
-
 use App\Helpers\ResponseHelper;
 use App\Http\Requests\ApprovalStatusRequest;
 use App\Http\Requests\AttendanceRequest;
