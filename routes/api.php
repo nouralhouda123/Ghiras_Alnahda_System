@@ -40,6 +40,7 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     //قسم الحملة
     Route::post('create_Campanig', [CampaignController::class, 'create'])
         ->middleware('can:create.campaign');
+        Route::get('showMyCampanig', [CampaignController::class, 'showMyCampanig']);
     Route::get('show_Campanig', [CampaignController::class, 'show']);
     Route::post('indexDetail_Campanig/{id}', [CampaignController::class, 'indexDetail']);
     Route::post('SearchCampaign', [CampaignController::class, 'SearchCampaign']);

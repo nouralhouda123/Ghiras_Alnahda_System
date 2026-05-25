@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Schema;
 class IndicatorMatchingService
 {
     /**
-     * الخطوة 2 كاملة: Matching + Scoring + Ranking
      */
     public function generate(array $aiResult, string $kpiText)
     {

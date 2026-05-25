@@ -12,6 +12,7 @@ use App\Repositories\CampaingRepository;
 use App\Repositories\PointTransactionRepository;
 use App\Repositories\userRepository;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -88,7 +89,9 @@ class CampaignService
 
             return [
                 'user' => $results,
-                'results' => $results,
+                    //new CampaignDetailsResource($campanig),
+
+               // 'results' => $results,
                 'message' => 'Campaign created successfully',
                 'code' => 201
             ];
@@ -179,4 +182,26 @@ class CampaignService
             'message' => 'Leader assigned successfully',
             'code' => 200
         ];
-    }}
+    }
+
+    public function showMyCampanig()
+    {
+        $user = auth()->user();
+        if (!$user->volunteerProfile) {
+            return [
+                'user' => null,
+                'message' => 'No volunteer profile found for this user.',
+                'code' => 404
+            ];
+        }
+        $campaigns = $user->volunteerProfile
+            ->campaigns()
+            ->get();
+        return [
+            'user' => CampaignResource::collection($campaigns),
+            'message' => 'Your campaigns retrieved successfully.',
+            'code' => 200
+        ];
+    }
+
+}

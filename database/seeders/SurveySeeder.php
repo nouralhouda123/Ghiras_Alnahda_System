@@ -10,23 +10,23 @@ class SurveySeeder extends Seeder
     public function run(): void
     {
         DB::table('surveys')->insert([
-
             [
-                'id' => 1,
-                'name' => 'Pre Campaign Survey',
-                'type' => 'pre_campaign'
+                'campaign_id' => 1,
+                'title' => 'Pre Campaign Survey',
+                'stage' => 'before',
+                'status' => 'active',
             ],
             [
-                'id' => 2,
-                'name' => 'During Campaign Survey',
-                'type' => 'during_campaign'
+                'campaign_id' => 1,
+                'title' => 'During Campaign Survey',
+                'stage' => 'during',
+                'status' => 'active',
             ],
             [
-                'id' => 3,
-                'name' => 'Post Campaign Survey',
-                'type' => 'after_campaign'
+                'campaign_id' => 1,
+                'title' => 'Post Campaign Survey',
+                'stage' => 'after',
+                'status' => 'active',
             ],
-
         ]);
-    }
-}
+}}

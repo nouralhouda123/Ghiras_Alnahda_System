@@ -44,7 +44,30 @@ class KpiCalculationService
 
         return $this->normalize($value, $indicator->target_value);
     }
+    public function calculateAndStore($indicator, $campaignId, $campaignKpiId)
+    {
+        $value = $this->calculate($indicator, $campaignId);
 
+        // حساب نسبة الإنجاز
+        $achievement = null;
+
+        if ($indicator->target_value) {
+            $achievement = min(($value / $indicator->target_value) * 100, 100);
+        }
+
+        DB::table('kpi_results')->insert([
+            'campaign_id' => $campaignId,
+            'campaign_kpi_id' => $campaignKpiId,
+            'indicator_id' => $indicator->id,
+            'value' => $value,
+            'achievement' => $achievement,
+            'calculated_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return $value;
+    }
     // =====================================================
     // 🟡 QUALITATIVE KPI (Survey Engine)
     // =====================================================
@@ -130,4 +153,5 @@ class KpiCalculationService
             ($results['after'] * 0.5)
         );
     }
+
 }

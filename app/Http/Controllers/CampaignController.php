@@ -86,6 +86,16 @@ class CampaignController extends Controller
             return ResponseHelper::Error($data['data'], $data['message'], $data['code']);
         }
     }
+//عرض حملاتي
+    public function showMyCampanig()
+    {
+        $data=$this->campaignService->showMyCampanig();
+        if($data['code']===200){
+            return ResponseHelper::Success($data['user'], $data['message'], $data['code']);
+        } else {
+            return ResponseHelper::Error($data['user'], $data['message'], $data['code']);
+        }
+    }
 
     public function update(Request $request, string $id)
     {

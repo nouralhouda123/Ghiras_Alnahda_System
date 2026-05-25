@@ -29,25 +29,15 @@ public function up(): void
         ]);
 
         $table->string('operation')->nullable();
-
-        // DB-based KPI
         $table->string('table_name')->nullable();
         $table->string('column_name')->nullable();
-
-        // Survey-based KPI
-        $table->unsignedBigInteger('survey_id')->nullable();
-        // Target
         $table->decimal('target_value', 10, 2)->nullable();
-
         $table->decimal('base_weight', 5, 2)->default(1);
         $table->integer('priority')->default(1);
-
         $table->json('tags')->nullable();
 
         $table->timestamps();
-    });}
-
-public function down(): void
+    });}public function down(): void
 {
 Schema::dropIfExists('indicators');
 }

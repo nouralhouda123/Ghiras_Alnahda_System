@@ -23,7 +23,6 @@ class DepartmentSeeder extends Seeder
                 'description' => 'Manages volunteers and teams',
             ],
         ];
-
         foreach ($departments as $department) {
             Department::firstOrCreate(
                 ['name' => $department['name']],

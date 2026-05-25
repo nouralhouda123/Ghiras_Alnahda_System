@@ -26,8 +26,7 @@ return new class extends Migration
             $table->enum('phase', ['before', 'during', 'after']);
 
             $table->timestamps();
-        });           }
-
+        });}
     /**
      * Reverse the migrations.
      */

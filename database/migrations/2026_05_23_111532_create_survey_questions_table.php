@@ -22,10 +22,12 @@ return new class extends Migration
 
             $table->integer('scale')->nullable();
 
+            $table->string('dimension')->nullable(); // 🔥 مهم
+
             $table->integer('order')->default(0);
 
             $table->timestamps();
-        });    }
+        });            }
 
     public function down(): void
     {

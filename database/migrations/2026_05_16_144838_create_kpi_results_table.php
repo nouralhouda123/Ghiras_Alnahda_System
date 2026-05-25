@@ -6,23 +6,41 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-        public function up()
+    public function up(): void
     {
         Schema::create('kpi_results', function (Blueprint $table) {
             $table->id();
-            $table->text('kpi');
-            $table->string('status'); // processing | done
-            $table->json('result')->nullable();
+
+            // الربط مع الحملة
+            $table->foreignId('campaign_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            // الربط مع الهدف
+            $table->foreignId('campaign_kpi_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            // الربط مع المؤشر
+            $table->foreignId('indicator_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            // 📊 القيمة الفعلية
+            $table->decimal('value', 10, 2);
+
+            // 🎯 نسبة تحقيق الهدف
+            $table->decimal('achievement', 5, 2)->nullable();
+
+            // 📅 وقت الحساب
+            $table->timestamp('calculated_at')->nullable();
+
             $table->timestamps();
         });
     }
 
-        public function down()
+    public function down(): void
     {
         Schema::dropIfExists('kpi_results');
-    }    };
-
-
+    }
+};
