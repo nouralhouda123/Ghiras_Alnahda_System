@@ -77,18 +77,18 @@ class CourseService
             $Course->load('instructor','skills','schedules');
             $this->approvalRequestRepository->create([
                 'type'=>'course',
-            'status'=>'pending',
-            'approvable_id'=>$Course->id,
+                'status'=>'pending',
+                'approvable_id'=>$Course->id,
                 'approvable_type' => 'course',
                 'requested_by'=>Auth::user()->id
             ]);
-        return [
-            'user' =>new CourseResource($Course) ,
-            'message' => 'Course created successfully',
-            'code' => 201
-        ];
+            return [
+                'user' =>new CourseResource($Course) ,
+                'message' => 'Course created successfully',
+                'code' => 201
+            ];
 
-    });}
+        });}
 
     public function index()
     {

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApprovalRequestController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\courseController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorGeneratorController;
@@ -85,7 +86,9 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     Route::get('indexAllCourses', [\App\Http\Controllers\courseController::class, 'index']);
     Route::post('indexDetailCourse/{id}', [\App\Http\Controllers\courseController::class, 'show']);
     Route::post('courses/enroll/{id}', [CourseController::class, 'store']);
-        Route::get('showMyCourses', [CourseController::class, 'showMyCourses']);
+    //كورسات خاص بالمتطوع راية
+    Route::get('showMyCourses', [CourseController::class, 'showMyCourses']);
+
 //قسم  ادارة المستخدمين
     Route::get('showAllUsers', [UserController::class, 'showAllEmployeeCampanig']);
     Route::post('UpdateUser/{id}', [UserController::class, 'UpdateEmployee']);
@@ -145,9 +148,19 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     // رابط عرض البطاقة للمتطوع
     Route::get('/my-card', [VolunteerRequestController::class, 'getMyIDCard']);
     Route::get('top-volunteers', [UserController::class, 'getTopVolunteers']);
+    Route::post('campaignsjoin/{campaignId}', [CampaignController::class, 'joinCampaign']);
 
+    Route::get('showMyCampanig', [CampaignController::class, 'showMyCampanig']);
 
+    /////////////////////Complaint with Raya heeeeeeeeheeeee
 
+    //توضيح للحساسيات وانواعها
+    Route::get('complaintsMeta-data', [ComplaintController::class, 'metaData']);
+    Route::get('showComplaints', [ComplaintController::class, 'index']);
+    Route::post('Addcomplaints', [ComplaintController::class, 'store']);
+
+    // مسار معالجة ورد الإدارة على شكوى معينة
+    Route::put('complaints/{id}/review', [ComplaintController::class, 'review']);
 
 
 
