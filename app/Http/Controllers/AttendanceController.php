@@ -57,6 +57,21 @@ class AttendanceController
         }
     }
 
+// داخل كلاس AttendanceController أضيفي هذا التابع:
+public function scanVolunteerQr(ScanQrAttendanceRequest $request)
+{
+    // تأكيد أمني: التحقق من صلاحية قائد الفريق عبر الـ Seeder الخاص بكِ
+    if (!auth()->user()->hasPermissionTo('scan.volunteer.qr')) {
+        return ResponseHelper::Error(null, 'Unauthorized! Only Team Leaders can scan attendance QR codes.', 403);
+    }
 
+    $data = $this->attendanceService->scanVolunteerQr($request);
+
+    if ($data['code'] === 200) {
+        return ResponseHelper::Success($data['data'], $data['message'], $data['code']);
+    } else {
+        return ResponseHelper::Error($data['data'], $data['message'], $data['code']);
+    }
+}
 
 }

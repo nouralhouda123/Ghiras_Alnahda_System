@@ -1,0 +1,8 @@
+[2026-05-25 10:07:50] local.ERROR: Command "sr" is not defined. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"sr\" is not defined. at C:\\Ghiras_Alnahda_System\\vendor\\symfony\\console\\Application.php:745)
+[stacktrace]
+#0 C:\\Ghiras_Alnahda_System\\vendor\\symfony\\console\\Application.php(266): Symfony\\Component\\Console\\Application->find('sr')
+#1 C:\\Ghiras_Alnahda_System\\vendor\\symfony\\console\\Application.php(175): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 C:\\Ghiras_Alnahda_System\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(201): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 C:\\Ghiras_Alnahda_System\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 

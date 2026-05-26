@@ -12,7 +12,9 @@ use App\Repositories\PointTransactionRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Crypt;
+use App\Http\Resources\AttendanceResource;
+use App\Models\User;
 class AttendanceService
 {
     public function __construct(
@@ -176,6 +178,11 @@ class AttendanceService
             'code' => 200
         ];
     }
+
+    //
+
+
+
     public function show($campanig_id)
     {
         $campanig = $this->CampaingRepository->getById($campanig_id);
@@ -204,4 +211,80 @@ class AttendanceService
             'message' => 'success',
             'code' => 200
         ];
-    }}
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    public function scanVolunteerQr($request)
+{
+    // 1. فك تشفير الـ QR للحصول على الـ ID الخاص بالمتطوع
+    try {
+        $volunteerId = Crypt::decryptString($request->input('qr_code_data'));
+    } catch (\Exception $e) {
+        return [
+            'code'    => 422,
+            'message' => 'Invalid or corrupted QR code data.',
+            'data'    => null
+        ];
+    }
+
+    $volunteer = User::find($volunteerId);
+    if (!$volunteer) {
+        return [
+            'code'    => 404,
+            'message' => 'Volunteer user not found.',
+            'data'    => null
+        ];
+    }
+
+    $campaignId = $request->input('campaign_id');
+
+    // 2. فحص هل توجد جلسة مفتوحة (Check-in أم Check-out)؟
+    $activeSession = $this->attendanceRepository->findActiveVolunteerSession($volunteerId, $campaignId);
+
+    if (!$activeSession) {
+        // سـيـنـاريـو الـ Check-In
+        $attendance = $this->attendanceRepository->create([
+            'volunteer_id'       => $volunteerId,
+            'campaign_id'        => $campaignId,
+            'check_in_time'      => Carbon::now(),
+            'is_leader'          => false,
+            'is_active_session'  => true,
+            'hours'              => 0.00
+        ]);
+
+        return [
+            'code'    => 200,
+            'message' => "Check-in successful for volunteer: {$volunteer->name}",
+            'data'    => new AttendanceResource($attendance->load('volunteer', 'campaign'))
+        ];
+    }
+
+    // سـيـنـاريـو الـ Check-Out
+    $checkOutTime = Carbon::now();
+    $checkInTime  = Carbon::parse($activeSession->check_in_time);
+    
+    // حساب الساعات
+    $minutes = $checkOutTime->diffInMinutes($checkInTime);
+    $hours   = round($minutes / 60, 2);
+
+    $this->attendanceRepository->update([
+        'check_out_time'    => $checkOutTime,
+        'is_active_session' => false,
+        'hours'             => $hours
+    ], $activeSession);
+
+    return [
+        'code'    => 200,
+        'message' => "Check-out successful for volunteer: {$volunteer->name}. Total hours: {$hours}",
+        'data'    => new AttendanceResource($activeSession->fresh(['volunteer', 'campaign']))
+    ];
+}}

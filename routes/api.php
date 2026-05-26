@@ -162,9 +162,9 @@ Route::middleware(['auth:sanctum','check.banned'])->group(function () {
     // مسار معالجة ورد الإدارة على شكوى معينة
     Route::put('complaints/{id}/review', [ComplaintController::class, 'review']);
 
+///////////////تسجيل حضور المتطوعين عبر مسح كود QR بواسطة قائد الفريق
 
-
-
+Route::post('attendance/scan-qr', [AttendanceController::class, 'scanVolunteerQr']);
 
 
 

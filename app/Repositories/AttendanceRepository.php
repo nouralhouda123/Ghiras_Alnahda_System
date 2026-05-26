@@ -26,4 +26,18 @@ class AttendanceRepository
             $data
         );
     }
+
+
+
+/**
+     * البحث عن جلسة حضور مفتوحة للمتطوع (لم يسجل خروج بعد)
+     */
+    public function findActiveVolunteerSession($volunteerId, $campaignId)
+    {
+        return Attendance::where('volunteer_id', $volunteerId)
+            ->where('campaign_id', $campaignId)
+            ->whereNull('check_out_time')
+            ->first();
+    }
+
 }
